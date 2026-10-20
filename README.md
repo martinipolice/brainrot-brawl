@@ -14,7 +14,7 @@ The title screen opens with PRESS START, then a menu:
 - **Start game (arcade):** pick a fighter and climb a ladder: the other three fighters in random order, then a shadow copy of yourself with 30% more health. The CPU gets sharper every stage, and your score carries across stages. Clearing the ladder plays an ending with the credits.
 - **Versus CPU:** you pick your fighter and the CPU's. The CPU's level (Easy, Normal or Hard) is set in Options.
 - **2 Players:** two people share one keyboard and pick at the same time with their own cursors.
-- **Move list**, **Options** and **Exit**. Options sets the CPU level, effects and music volume, the announcer and the CRT filter, all remembered in your browser. Browsers don't let a page close its own tab, so Exit shows a goodbye screen.
+- **Move list**, **Options** and **Exit**. Options sets the CPU level, effects and music volume, the announcer, the CRT filter and screen shake and flashing (Full, Reduced or Off), all remembered in your browser. Browsers don't let a page close its own tab, so Exit shows a goodbye screen.
 
 Against the CPU, losing gives you a 9-second CONTINUE countdown before GAME OVER. Rounds last 60 seconds, the first fighter to win 2 rounds takes the match, and the third round is announced as FINAL ROUND.
 
@@ -65,7 +65,7 @@ Hits score 100 points per point of damage, plus a bonus for combos. The round wi
 ## Look and feel
 The arena draws at 320×180. Every sprite is snapped to a fixed palette with hard edges and scaled up with no smoothing, and the background uses dithered gradients.
 
-When a hit lands, the game freezes briefly (hitstop) and the defender shudders. Sparks scatter and bounce off the sand, a heavy hit zooms the camera and pops a brainrot word (TUNG!, KABOOM!), and the health bar shakes. A KO adds slow motion, a camera zoom on the loser, a screen flash, a confetti burst and the body bouncing on the ground. Fighters squash and stretch on jumps, landings and hits, knockback leaves afterimages, and stunned fighters splat against the walls. Turning on the OS reduced-motion setting tones down the shake, zoom and flashes.
+When a hit lands, the game freezes briefly (hitstop) and the defender shudders. Sparks scatter and bounce off the sand, a heavy hit zooms the camera and pops a brainrot word (TUNG!, KABOOM!), and the health bar shakes. A KO adds slow motion, a camera zoom on the loser, a screen flash, a confetti burst and the body bouncing on the ground. Fighters squash and stretch on jumps, landings and hits, knockback leaves afterimages, and stunned fighters splat against the walls. Screen shake builds up from impacts and settles smoothly: a light hit nudges the screen by about a pixel, a KO by about five, and quick combos stack. Turning on the OS reduced-motion setting starts the Shake & flash option at Reduced and tones down the zoom.
 
 ## Self-check
 Open `index.html#selftest`, or run `selfTest()` in the console. It runs 19 checks, including hits and blocking, guarding by holding back, the L, L, H chain, dashing, the SP gauge, rage, all three ultimate inputs (and that they need a full meter), KOs and the score bonuses.
