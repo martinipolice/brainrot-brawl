@@ -1,5 +1,7 @@
 # Brainrot Brawl
 
+A game by **martinipolice**.
+
 A Street Fighter-style 1v1 pixel-art browser fighter starring Italian brainrot memes. It's one HTML file with no build step and no dependencies.
 
 **Play online:** https://martinipolice.github.io/brainrot-brawl/
