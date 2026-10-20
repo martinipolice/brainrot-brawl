@@ -2,7 +2,9 @@
 
 A Street Fighter-style 1v1 pixel-art browser fighter starring Italian brainrot memes. It's one HTML file with no build step and no dependencies.
 
-**Play:** open `index.html` in a browser, or turn on GitHub Pages for this repo.
+**Play online:** https://martinipolice.github.io/brainrot-brawl/
+
+You can also open `index.html` in a browser to play offline. The live site is deployed with GitHub Pages from the `main` branch, so every push to `main` updates it.
 
 ## Modes
 - **1 Player vs CPU**: you pick your fighter, then the CPU's. If the CPU wins, you get a 9-second CONTINUE countdown before GAME OVER.
