@@ -1,42 +1,65 @@
 # Martini's Brainrot Brawl
 
-A 1v1 pixel-art fighting game for the browser, starring Italian brainrot memes, in plain HTML, CSS and JavaScript modules.
+An open-source 1v1 pixel-art fighting game for the browser, starring the Italian brainrot memes. It has no install, no build step and no dependencies.
 
-[![Play](https://img.shields.io/badge/play-online-ff3b5c)](https://martinipolice.github.io/brainrot-brawl/)
+[![Play now](https://img.shields.io/badge/play-in_your_browser-ff3b5c)](https://martinipolice.github.io/brainrot-brawl/)
 [![Pages](https://img.shields.io/github/deployments/martinipolice/brainrot-brawl/github-pages?label=pages)](https://github.com/martinipolice/brainrot-brawl/deployments)
 ![Version](https://img.shields.io/badge/version-1.8.1-ffde3b)
-![Dependencies](https://img.shields.io/badge/dependencies-none-4d8b3a)
+[![License: MIT](https://img.shields.io/badge/license-MIT-4d8b3a)](LICENSE)
+
+![Tralalero Tralala, Tung Tung Tung Sahur, Bombardiro Crocodilo and Ballerina Cappuccina on Sunset Beach](img/og-image.png)
+
+**[▶ Play it in your browser](https://martinipolice.github.io/brainrot-brawl/)**. It works on desktop and on touch screens.
 
 ## Features
-- **Modes:** Arcade (a ladder of the three other fighters, then a shadow copy of you as the boss, then an ending), Versus CPU (Easy, Normal or Hard) and 2 Players on one keyboard.
-- **Roster:** Tralalero Tralala, Tung Tung Tung Sahur, Bombardiro Crocodilo and Ballerina Cappuccina, each with their own special and ultimate.
+- **Three modes:**
+  - **Arcade:** beat the other three fighters, then a shadow copy of yourself, and see the ending.
+  - **Versus CPU:** Easy, Normal or Hard.
+  - **2 Players:** on one keyboard.
+- **Four fighters:**
+  - Tralalero Tralala
+  - Tung Tung Tung Sahur
+  - Bombardiro Crocodilo
+  - Ballerina Cappuccina
+
+  Each has their own special and a cinematic ultimate.
 - **Fighting system:**
   - light, heavy and special attacks;
   - guarding by holding back, dashes, rush attacks and launchers;
   - L, L, H chains and special cancels;
-  - an SP gauge for specials and a SUPER meter for ultimates, with slow-motion cut-ins;
-  - rage below 30% health.
-- **Stages:** six stages that react to the fight for show only: Sunset Beach, Sahur Village, Bombardiro Airfield, Opera Cappuccina, Shark Pier and The Storm.
-- **Rendering:** a 320×180 canvas, with every sprite snapped to a fixed palette at runtime. Hitstop, screen shake, particles and KO physics.
-- **Audio:** music and effects synthesized live with the Web Audio API, with no audio files. The announcer uses the browser's speech voices, in JP or EN.
-- **Input:** keyboard for two players, plus an on-screen pad for Player 1 on touch screens.
-- **Saved in the browser:** options, the hi-score and the CRT filter setting.
-- **Built-in self-check:** 20 simulation tests.
+  - an SP gauge, a SUPER meter and rage mode.
+- **Six stages:** each reacts to the fight with swinging lanterns, cheering crowds, a bomber flyover, a falling chandelier, smashing crates and lightning.
+- **Arcade feel:**
+  - hitstop, screen shake, particles and tumbling KO physics;
+  - a 320×180 palette-locked pixel look and an optional CRT filter.
+- **Sound:**
+  - all sound is synthesized live with the Web Audio API, with no audio files;
+  - the music builds as the fight heats up;
+  - an announcer in Japanese-accented or plain English.
 
-## Tech Stack
-- HTML5 Canvas 2D
-- CSS (one file per part of the page, in `css/`)
-- JavaScript ES modules (`js/`), with no framework, no bundler and no build step
-- Web Audio API and Web Speech API
-- GitHub Pages for hosting, deployed from `main`
+## Controls
+| | Player 1 | Player 2 |
+|---|---|---|
+| Move · jump | A D · W | ← → · ↑ |
+| Guard | hold S or back | hold ↓ or back |
+| Light · heavy · special | J K L | , . / (Numpad 1 2 3) |
+| Ultimate (full SUPER) | K + L | . + / |
 
-## Getting Started
+| Input (facing right) | Move |
+|---|---|
+| → → / ← ← | Dash / backstep |
+| → + Heavy | Rush attack |
+| ← + Heavy | Launcher |
+| Light, Light, Heavy | Chain combo |
 
-### Prerequisites
-- Any current browser that supports ES modules (Chrome, Edge, Firefox or Safari).
-- A static file server. The commands below use Python 3. Opening `index.html` straight from disk won't work, because browsers only load modules over HTTP.
+Other keys:
+- Esc pauses, M mutes and C toggles the CRT filter.
+- In menus, the arrows or WASD move and Enter or J selects.
+- On touch screens, on-screen buttons control Player 1.
 
-### Installation
+## Run it locally
+The game is plain HTML, CSS and JavaScript modules. Browsers only load modules over HTTP, so serve the folder rather than opening `index.html` directly.
+
 ```bash
 git clone https://github.com/martinipolice/brainrot-brawl.git
 ```
@@ -49,31 +72,39 @@ cd brainrot-brawl
 python -m http.server 8000
 ```
 
-Then open http://localhost:8000.
+Then open http://localhost:8000. Any static server works. Settings and the hi-score are saved in the browser's `localStorage`.
 
-### Configuration
-There are no `.env` keys and no build configuration. Gameplay settings are in the in-game Options menu and are saved in `localStorage` under these keys:
-- `brainrot-brawl-opts`
-- `brainrot-brawl-hi`
-- `brainrot-brawl-crt`
+## Project structure
+`index.html` loads `js/main.js` as an ES module, and that module imports everything else.
 
-## Usage
-Play online at https://martinipolice.github.io/brainrot-brawl/, or open the local server and run the self-check:
+| Path | Contents |
+|---|---|
+| `js/main.js` | Entry point and the fixed 60 Hz game loop |
+| `js/core/` | Constants, saved settings, shared state, helpers |
+| `js/game/` | Fighters, roster, match flow, combat, effects |
+| `js/stages/` | One file per stage: backdrop, ambient motion, reactions |
+| `js/render/` | Canvas, shape helpers, pixel pass, camera, HUD |
+| `js/audio/` | Mixer, sound effects, music, announcer |
+| `js/input/` | Key maps, hotkeys, touch pad |
+| `js/ai/cpu.js` | CPU opponent |
+| `js/ui/` | Title, select, VS, ending, menus, screen flow |
+| `js/tests/selftest.js` | Self-check |
+| `css/` | Styles, one file per part of the page |
 
-```text
-http://localhost:8000/#selftest
-```
+Shared state lives in the module that owns it, and other modules change it through setters such as `setGame()`. All art is drawn in code with canvas shapes; there are no sprite sheets.
 
-You can also call `selfTest()` from the browser console.
+## Contributing
+Bug reports, ideas and pull requests are welcome. [Open an issue](https://github.com/martinipolice/brainrot-brawl/issues) to report a bug or suggest something.
 
-| | Player 1 | Player 2 |
-|---|---|---|
-| Move · jump | A D · W | ← → · ↑ |
-| Guard | hold S or back | hold ↓ or back |
-| Light · heavy · special | J K L | , . / (Numpad 1 2 3) |
-| Ultimate | K + L | . + / |
+For a pull request:
+1. Keep it dependency-free and build-free.
+2. Before you submit, run the self-check by opening `http://localhost:8000/#selftest` or calling `selfTest()` in the browser console. All 20 checks should pass.
+3. If the change is visible to players, add a line to [CHANGELOG.md](CHANGELOG.md).
 
-Esc pauses, M mutes and C toggles the CRT filter. Version history is in [CHANGELOG.md](CHANGELOG.md).
+## AI disclosure
+This game was built with Claude, Anthropic's AI, as a coding assistant. I directed the project. The game design, features, characters, stages, look and feel, and the approval of every change are mine. Most of the code was written by Claude under that direction, and I checked it in play.
 
 ## License
-No license has been chosen yet, so all rights are reserved by default. This is a fan-made parody: the characters are internet memes, drawn from scratch with canvas shapes.
+The code is under the [MIT License](LICENSE).
+
+This is a fan-made parody. The characters are internet memes, redrawn here from scratch with canvas shapes, and are not owned by this project.
