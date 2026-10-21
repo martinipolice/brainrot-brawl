@@ -1,6 +1,6 @@
 # Martini's Brainrot Brawl
 
-A game by **martinipolice**. Current version: **v1.7.0** (shown under the game screen).
+A game by **martinipolice**. Current version: **v1.7.1** (shown under the game screen).
 
 A Street Fighter-style 1v1 pixel-art browser fighter starring Italian brainrot memes. It's plain HTML, CSS and JavaScript modules, with no build step and no dependencies.
 
@@ -92,7 +92,7 @@ When a hit lands, the game freezes briefly (hitstop) and the defender shudders. 
 | `js/ai/cpu.js` | CPU opponent |
 | `js/ui/` | Screens: title and options, character select, VS splash, ending, menus, screen switching and match flow |
 | `js/tests/selftest.js` | The self-check |
-| `img/` | Tab icon and home-screen icon (Tung's face) and the 1200×630 link preview image, drawn with the game's own art |
+| `img/` | Tab icon and home-screen icon (Tung's face as 32×32 pixel art in the game's palette) and the 1200×630 link preview image, drawn with the game's own art |
 
 Shared mutable values (the current match, which screen is showing and so on) live in the module that owns them. Other modules read them through imports and change them through that module's setters, such as `setGame()`, because an imported binding is read-only. The shape helpers draw into one target at a time; `withTarget(canvas, draw)` points them at another canvas for the length of `draw` and always switches back.
 
@@ -100,6 +100,7 @@ Shared mutable values (the current match, which screen is showing and so on) liv
 Serve the folder as above and open `index.html#selftest`, or run `selfTest()` in the console. It runs 20 checks, including hits and blocking, guarding by holding back, the L, L, H chain, dashing, the SP gauge (and that it starts empty), rage, all three ultimate inputs (and that they need a full meter), KOs and the score bonuses.
 
 ## Changelog
+- **v1.7.1:** New tab and home-screen icon: Tung's grinning face as 32×32 pixel art in the game's palette, framed in the logo's gold-to-pink.
 - **v1.7.0:** Ultimate cut-ins are close-ups framed on each fighter's face; rounds last longer (more health, rebalanced so every fighter wins about half its rounds across CPU levels); the SP gauge starts each round empty; SUPER fills more slowly and rage adds 35% instead of a full bar; pause menu Restart match; the fight pauses itself when you switch windows; Light, Heavy or Special skips the ROUND call and cut-ins; character select remembers your last picks; menu items are full-size tap targets on touch screens; a tab icon, a home-screen icon and a link preview image for sharing.
 - **v1.6.0:** Slow-motion ultimate cut-in that opens the move in slow motion; knocked-out fighters tumble, bounce and settle on the sand with physics instead of a fixed fall; keys used in the pause menu no longer make fighters attack or jump on resume; holding M no longer flickers mute; the code is split into CSS files and JavaScript modules.
 - **v1.5.0:** Redrawn fighters closer to the source memes (torpedo-shaped Tralalero, Tung's carved drum slit and grin, a green crocodile-bodied Bombardiro, Ballerina's pointe-shoe ribbons and layered tutu); a closer battle camera that follows the fight on a smooth spring with a deadzone, frames projectiles, and keeps the ground in view during jumps, so the fighters are about 50% bigger on screen; slimmer HUD; knocked-out fighters now lie on the sand instead of sinking into it; centred title menu and character select; header is just the title; touch controls fit phones down to 320px; faster palette lookup; Ballerina 104 HP; new battle theme that builds with the fight, per-fighter hit sounds, a louder and cleaner mix, and a Japanese-accented arcade announcer with more lines.
