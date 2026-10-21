@@ -17,7 +17,7 @@ function makeFighter(ch, i) {
   return { ch, i, x: i ? W - 300 : 300, y: GROUND, vx: 0, vy: 0, face: i ? -1 : 1, hp: ch.hp, ghost: ch.hp, state: 'idle',
     atk: null, atkName: '', atkT: 0, hitN: 0, lastHitT: -99, stun: 0, sp: 0, buf: {}, T: 0, flash: 0, rot: 0, rotV: 0, combo: 0, comboN: 0, comboShow: 0, wins: 0, ai: { hold: 0, keys: {} },
     sq: 0, sqv: 0, jit: 0, barShake: 0, hitFlash: 0, glint: 0, comboPop: 0,
-    meter: 0, rage: false, hist: [], prev: { fwd: false, back: false, down: false }, backHeld: false, dashT: 0, chain: 0, shadow: false };
+    meter: 0, rage: false, hist: [], prev: { fwd: false, back: false, down: false }, backHeld: false, dashT: 0, chain: 0, shadow: false, trailT: -99 };
 }
 const freshFx = () => ({ proj: [], fx: [], parts: [], pops: [], trails: [], stop: 0, slowT: 0, koZoom: 0, zp: 0, zx: W / 2, zy: H / 2, flash: 0, timerPop: 0, bonus: null, perfect: false, cut: null, rageFlash: 0, camX: W / 2, camY: CAMY, camAim: W / 2, camVX: 0, camVY: 0 });
 export function newGame(c0, c1, ctrl, labels) {

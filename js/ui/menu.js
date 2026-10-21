@@ -6,7 +6,7 @@ import { cycleOpt } from './title.js';
 export function menuNav(e) {
   const menus = [...document.querySelectorAll('.menu')].filter(m => m.offsetParent !== null), m = menus[menus.length - 1];
   if (!m) return;
-  const items = [...m.querySelectorAll('button')], i = items.indexOf(document.activeElement), c = e.code;
+  const items = [...m.querySelectorAll('button')].filter(b => b.offsetParent !== null), i = items.indexOf(document.activeElement), c = e.code;
   const opt = document.activeElement && document.activeElement.dataset && document.activeElement.dataset.opt;
   if (opt && ['ArrowLeft', 'KeyA', 'ArrowRight', 'KeyD'].includes(c)) { e.preventDefault(); cycleOpt(opt, c === 'ArrowLeft' || c === 'KeyA' ? -1 : 1); return; }
   const d = ['ArrowUp', 'KeyW', 'ArrowLeft', 'KeyA'].includes(c) ? -1 : ['ArrowDown', 'KeyS', 'ArrowRight', 'KeyD'].includes(c) ? 1 : 0;

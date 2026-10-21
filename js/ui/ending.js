@@ -1,4 +1,4 @@
-import { LW, LH } from '../core/constants.js';
+import { LW, LH, STEP } from '../core/constants.js';
 import { tick } from '../core/state.js';
 import { easeOutBack, pad7 } from '../core/util.js';
 import { ctx } from '../render/canvas.js';
@@ -13,7 +13,7 @@ import { arcade, show } from './flow.js';
 
 // Arcade ending: your fighter celebrates while the credits roll.
 export let ending = null;
-const endFrames = () => ending ? (performance.now() - ending.t0) / (1000 / 60) : 0;
+const endFrames = () => ending ? (performance.now() - ending.t0) / STEP : 0;
 export function showEnding() { ending = { t0: performance.now(), ch: CHARS[arcade.me], score: arcade.score, continues: arcade.continues }; show('ending'); sfx('win'); announce('congratulations!'); }
 export function renderEnding() {
   const t = endFrames(), c = ctx;

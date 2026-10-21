@@ -1,4 +1,4 @@
-import { LW, LH } from '../core/constants.js';
+import { LW, LH, STEP } from '../core/constants.js';
 import { fxFlash } from '../core/settings.js';
 import { easeOutBack } from '../core/util.js';
 import { ctx } from '../render/canvas.js';
@@ -9,10 +9,10 @@ import { announce } from '../audio/announcer.js';
 import { sfx } from '../audio/sfx.js';
 import { selMode, picks, arcade, show, startMatch, chooseStage } from './flow.js';
 
-// VS splash between select and fight: split screen, fighters slide in, VS slams down. In arcade it also names the stage.
+// VS splash between select and fight: split screen, fighters slide in, VS slams down, and the stage is named.
 export let vs = null;
 export const setVs = v => { vs = v; };
-export const vsFrames = () => vs ? (performance.now() - vs.t0) / (1000 / 60) : 0;
+export const vsFrames = () => vs ? (performance.now() - vs.t0) / STEP : 0;
 export function startVS() { vs = { t0: performance.now(), slam: false, stage: chooseStage() }; show('vs'); sfx('whoosh'); }
 export function renderVS() {
   const t = vsFrames(), c = ctx, boss = selMode === 'arcade' && arcade.order[arcade.stage].boss;

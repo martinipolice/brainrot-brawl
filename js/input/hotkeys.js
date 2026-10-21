@@ -1,11 +1,10 @@
 import { opts, saveOpts } from '../core/settings.js';
-import { game, ui, paused } from '../core/state.js';
+import { game, ui } from '../core/state.js';
 import { muted, setMuted, audio, applyVolumes } from '../audio/mixer.js';
 import { sfx } from '../audio/sfx.js';
 import { held, pressed, GAME_KEYS, CONFIRM } from './keyboard.js';
-import { $ } from '../ui/dom.js';
 import { endEnding } from '../ui/ending.js';
-import { startMatch, togglePause } from '../ui/flow.js';
+import { startMatch, togglePause, inOverlay } from '../ui/flow.js';
 import { menuNav } from '../ui/menu.js';
 import { selectKey } from '../ui/select.js';
 import { started, titleView, crtOn, setCRT, setTitleView, pressStart } from '../ui/title.js';
@@ -15,7 +14,7 @@ import { vsFrames } from '../ui/vs.js';
 export function bindKeys() {
   addEventListener('keydown', e => {
     audio();
-    const u = ui, overlay = u === 'fight' && (paused || !$('pResult').hidden);
+    const u = ui, overlay = inOverlay();
     if (e.code === 'KeyM' && !e.repeat) { setMuted(!muted); opts.muted = muted; saveOpts(); applyVolumes(); if (muted && 'speechSynthesis' in window) speechSynthesis.cancel(); }
     if (e.code === 'KeyC' && !e.repeat) setCRT(!crtOn);
     if (u === 'fight' && GAME_KEYS.has(e.code) && !(e.target instanceof HTMLButtonElement && (e.code === 'Space'))) e.preventDefault();

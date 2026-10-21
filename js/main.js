@@ -1,3 +1,4 @@
+import { STEP } from './core/constants.js';
 import { game, ui, paused, tick, setTick } from './core/state.js';
 import { renderFight } from './render/fight.js';
 import { stageCanvas } from './render/stage.js';
@@ -30,20 +31,22 @@ setCRT(crtOn);
 // ---------- main loop (fixed 60 Hz simulation) ----------
 let last = performance.now(), acc = 0;
 function frame(now) {
-  acc += Math.min(100, now - last); last = now; setTick(tick + 1);
+  acc += Math.min(100, now - last); last = now;
+  // tick counts 60 Hz steps of real time, not screen refreshes, so everything runs at the same speed on a 60, 120 or
+  // 144 Hz screen. A refresh that starts no new step would draw the same picture again, so it draws nothing.
+  const ticks = Math.floor(acc / STEP); acc -= ticks * STEP;
   music();
+  if (ui === 'fight' && game && cont && !$('pResult').hidden) updateContinue(now);
+  if (!ticks) { requestAnimationFrame(frame); return; }
+  setTick(tick + ticks);
   if (ui === 'fight' && game) {
-    while (acc >= 1000 / 60) { if (!paused) { step(); updateFx(); } acc -= 1000 / 60; }
+    if (!paused) for (let i = 0; i < ticks; i++) { step(); updateFx(); }
     renderFight();
-    if (cont && !$('pResult').hidden) updateContinue(now);
-  } else {
-    acc = 0;
-    if (ui === 'vs' && vs) renderVS();
-    else if (ui === 'ending' && ending) renderEnding();
-    else if (ui === 'title') {
-      renderLogo(now);
-    } else if (ui === 'select' && sel) renderSelect(now);
   }
+  else if (ui === 'vs' && vs) renderVS();
+  else if (ui === 'ending' && ending) renderEnding();
+  else if (ui === 'title') renderLogo(now);
+  else if (ui === 'select' && sel) renderSelect(now);
   requestAnimationFrame(frame);
 }
 requestAnimationFrame(frame);

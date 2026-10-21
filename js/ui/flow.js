@@ -47,8 +47,8 @@ export function chooseStage() {
   const o = arcade.order[arcade.stage];
   return o.boss ? stageById('storm') : STAGES.find(s => s.home === CHARS[o.c].id) || STAGES[0];
 }
-export function startMatch() {
-  const sd = (vs && vs.stage) || chooseStage(); // the VS screen already picked (and named) it
+export function startMatch(stage) {
+  const sd = stage || (vs && vs.stage) || chooseStage(); // a restart keeps its stage; otherwise the VS screen already picked (and named) it
   const c = [CHARS[picks[0]], CHARS[picks[1]]], arc = selMode === 'arcade';
   const lvl = arc ? arcadeLevel() : CPU_LEVELS[opts.cpu];
   newGame(c[0], c[1], [keyCtrl(MAPS[0]), selMode === 2 ? keyCtrl(MAPS[1]) : cpuCtrl(1, lvl)], ['1P', selMode === 2 ? '2P' : 'CPU']);
@@ -95,11 +95,13 @@ export function updateContinue(now) {
   $('resTitle').textContent = 'Game over'; $('resCont').hidden = true; $('resMenu').hidden = true; sfx('lose'); announce('game over!');
   setTimeout(() => { if (ui === 'fight' && !$('pResult').hidden && $('resMenu').hidden) show('title'); }, 2500);
 }
+// The pause or result menu is up: input belongs to the menu, not the fight.
+export const inOverlay = () => ui === 'fight' && (paused || !$('pResult').hidden);
 export function togglePause() { setPaused(!paused); $('pPause').hidden = !paused; $('pmlist').hidden = true; if (paused) $('bResume').focus({ preventScroll: true }); else document.activeElement.blur(); }
 
 export function bindFight() {
   $('bResume').onclick = togglePause;
-  $('bRestart').onclick = startMatch;
+  $('bRestart').onclick = () => startMatch(game.stage.def);
   $('bPMoves').onclick = () => { $('pmlist').hidden = !$('pmlist').hidden; };
   $('bQuit').onclick = () => show('title');
   $('bRematch').onclick = () => resAction();

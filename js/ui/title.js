@@ -1,4 +1,4 @@
-import { OUT, RM } from '../core/constants.js';
+import { OUT, RM, STEP } from '../core/constants.js';
 import { VERSION, CRTKEY, load, save, CPU_LEVELS, opts, saveOpts } from '../core/settings.js';
 import { tick } from '../core/state.js';
 import { easeOutBack } from '../core/util.js';
@@ -88,7 +88,7 @@ export function renderLogo(now) {
   if (!logoImg && (!document.fonts || document.fonts.check(`28px ${FONT}`) || now > 3000)) logoImg = buildLogo();
   const lc = logoCv.getContext('2d'), LH2 = logoCv.height; lc.clearRect(0, 0, 320, LH2);
   if (!logoImg) return;
-  const t = (now - logoT0) / (1000 / 60), drop = RM ? 0 : Math.round((1 - easeOutBack(Math.min(1, t / 24))) * -90);
+  const t = (now - logoT0) / STEP, drop = RM ? 0 : Math.round((1 - easeOutBack(Math.min(1, t / 24))) * -90);
   lc.drawImage(logoImg, 0, drop);
   const gt = t % 200 - 150; // glint sweep
   if (gt >= 0 && !RM) {

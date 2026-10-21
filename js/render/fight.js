@@ -59,8 +59,9 @@ function drawActor(f, cam) {
   pixelize(lay, bx, by, bw, bh);
   if (f.shadow || f.flash > 2) tint(lay, f.flash > 2 ? '#fff' : SHADOW_TINT, bx, by, bw, bh);
   if (f.rage && f.flash <= 2) tint(lay, `rgba(255,40,60,${(.14 + .12 * Math.sin(tick * .3)).toFixed(3)})`, bx, by, bw, bh);
-  // afterimages on dashes and big knockback
-  if (!paused && game.stop === 0 && tick % 3 === 0 && Math.abs(f.vx) > 3.5 && (f.atk || f.state === 'hit' || f.state === 'ko')) {
+  // afterimages on dashes and big knockback, one every 3 ticks at most (however often the screen refreshes)
+  if (!paused && game.stop === 0 && tick - f.trailT >= 3 && Math.abs(f.vx) > 3.5 && (f.atk || f.state === 'hit' || f.state === 'ko')) {
+    f.trailT = tick;
     const c = pool.pop() || document.createElement('canvas'); c.width = bw; c.height = bh;
     const t = c.getContext('2d'); t.drawImage(layCv, bx, by, bw, bh, 0, 0, bw, bh);
     t.globalCompositeOperation = 'source-atop'; t.fillStyle = PCOL[f.i]; t.fillRect(0, 0, bw, bh);
