@@ -1,4 +1,4 @@
-import { OUT, LW, LH } from '../core/constants.js';
+import { OUT, PX, LW, LH } from '../core/constants.js';
 import { fxFlash } from '../core/settings.js';
 import { game, tick } from '../core/state.js';
 import { easeOutBack, pad7 } from '../core/util.js';
@@ -104,14 +104,16 @@ export function drawCutscene() {
     c.fillRect(Math.round(R ? LW - run : run - len), y, len, 1);
   }
   c.fillStyle = col; c.fillRect(0, by, LW, 2); c.fillRect(0, by + bh - 2, LW, 2);
-  // the fighter, three times size, glides in from its own side and keeps drifting while the view slowly pushes in;
-  // its pose animates at quarter speed
-  const slide = 1 - easeOutBack(Math.min(1, t / 20)), fx = (R ? LW - 80 : 80) + (R ? 1 : -1) * (slide * 170 - t * .15);
-  figureLayer(f.ch, fx, by + bh + 34, 3 + t * .004, R ? -1 : 1, { s: 'special', ph: 1, T: t * .25 }, f.shadow);
+  // a close-up framed on the fighter's face (ch.face, in its own drawing units), in the wind-up of its special: it glides
+  // in from its own side and keeps drifting while the view slowly pushes in, and the pose animates at quarter speed.
+  // Only the band is copied back, so the body never spills past it.
+  const dir = R ? -1 : 1, z = (4.2 + t * .006) / PX, slide = 1 - easeOutBack(Math.min(1, t / 20));
+  const faceX = (R ? LW * .76 : LW * .24) - dir * (slide * 170 - t * .08), faceY = by + bh / 2 + 4;
+  figureLayer(f.ch, faceX - dir * f.ch.face[0] * z, faceY - f.ch.face[1] * z, z * PX, dir, { s: 'special', ph: 0, T: t * .25 }, f.shadow);
   c.drawImage(layCv, 0, by + 2, LW, bh - 4, 0, by + 2, LW, bh - 4);
   // the move's name on the free side
   const tx = R ? LW * .3 : LW * .7;
   if (t > 6) drawText('ULTIMATE!', tx, by + 16, 8, col, { shadow: '#000' });
-  if (t > 10) drawText(cut.name.toUpperCase(), tx, by + bh / 2 + 6, 8, '#fff', { scale: 2 * easeOutBack(Math.min(1, (t - 10) / 16)), shadow: col, maxW: LW * .55 });
+  if (t > 10) drawText(cut.name.toUpperCase(), tx, by + bh / 2 + 6, 8, '#fff', { scale: 2 * easeOutBack(Math.min(1, (t - 10) / 16)), shadow: col, maxW: LW * .5 });
   if (t < 3 && fxFlash()) { c.fillStyle = 'rgba(255,255,255,.7)'; c.fillRect(0, 0, LW, LH); }
 }

@@ -135,7 +135,7 @@ export function gainSp(f, src, mult) {
 // Rage (like Tekken): below 30% health a fighter hits 10% harder for the rest of the round, and SUPER fills once.
 export function checkRage(f) {
   if (f.rage || f.hp <= 0 || f.hp > maxHp(f) * .3) return;
-  f.rage = true; f.meter = 100; game.rageFlash = 10;
+  f.rage = true; f.meter = Math.min(100, f.meter + 35); game.rageFlash = 10;
   pop('RAGE!', f.x, f.y - f.ch.h - 30, '#ff4f7b');
   burst(f.x, f.y - f.ch.h / 2, 24, { ang: -Math.PI / 2, spread: 2.4, sp: [2, 7], g: -.05, drag: .92, life: [16, 30], cols: ['#ff3b5c', '#ff4f7b', '#ff9a3b'], sz: 3 });
   sfx('rage'); duck(.35, .5);

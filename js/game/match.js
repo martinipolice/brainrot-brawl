@@ -9,13 +9,13 @@ import { firstName } from './roster.js';
 import { announce } from '../audio/announcer.js';
 import { setMStep } from '../audio/music.js';
 import { sfx } from '../audio/sfx.js';
-import { pressed } from '../input/keyboard.js';
+import { pressed, MAPS, keyCtrl } from '../input/keyboard.js';
 import { selMode, showResult } from '../ui/flow.js';
 
 // A match: fighters, rounds, the fixed 60 Hz simulation step, and how rounds and matches end.
 function makeFighter(ch, i) {
   return { ch, i, x: i ? W - 300 : 300, y: GROUND, vx: 0, vy: 0, face: i ? -1 : 1, hp: ch.hp, ghost: ch.hp, state: 'idle',
-    atk: null, atkName: '', atkT: 0, hitN: 0, lastHitT: -99, stun: 0, sp: 100, buf: {}, T: 0, flash: 0, rot: 0, rotV: 0, combo: 0, comboN: 0, comboShow: 0, wins: 0, ai: { hold: 0, keys: {} },
+    atk: null, atkName: '', atkT: 0, hitN: 0, lastHitT: -99, stun: 0, sp: 0, buf: {}, T: 0, flash: 0, rot: 0, rotV: 0, combo: 0, comboN: 0, comboShow: 0, wins: 0, ai: { hold: 0, keys: {} },
     sq: 0, sqv: 0, jit: 0, barShake: 0, hitFlash: 0, glint: 0, comboPop: 0,
     meter: 0, rage: false, hist: [], prev: { fwd: false, back: false, down: false }, backHeld: false, dashT: 0, chain: 0, shadow: false };
 }
@@ -49,12 +49,17 @@ function endRound() {
   game.phase = 'roundEnd'; game.phaseT = 0; game.proj = [];
 }
 
+// A human player pressing light, heavy or special (the CPU never skips). Player i plays on key map i.
+const skipPressed = () => [0, 1].some(i => game.labels[i] !== 'CPU' && (k => k.light || k.heavy || k.special)(keyCtrl(MAPS[i])()));
+
 export function step() {
+  if (game.cut && game.cut.T > 20 && game.cut.T < game.cut.len - 8 && skipPressed()) { game.cut.T = game.cut.len - 8; pressed.clear(); } // skip to the fade-out
   if (game.cut) { if (++game.cut.T >= game.cut.len) { game.cut = null; game.slowT = 24; } return; } // ultimate cut-in: the fight is frozen, then the move opens in slow motion
   if (game.stop > 0) { game.stop--; return; } // hitstop: keep presses queued
   game.p.forEach(f => f.jit = 0);
   if (game.slowT > 0) { game.slowT--; if (game.slowT % 3) return; } // KO slow motion
   game.phaseT++;
+  if (game.phase === 'intro' && game.phaseT > 20 && game.phaseT < 59 && skipPressed()) game.phaseT = 59; // skip the ROUND call to FIGHT!
   const live = game.phase === 'fight';
   const ins = game.p.map((f, i) => live ? game.ctrl[i]() : {});
   pressed.clear();

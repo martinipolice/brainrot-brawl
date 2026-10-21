@@ -89,10 +89,15 @@ export function togglePause() { setPaused(!paused); $('pPause').hidden = !paused
 
 export function bindFight() {
   $('bResume').onclick = togglePause;
+  $('bRestart').onclick = startMatch;
   $('bPMoves').onclick = () => { $('pmlist').hidden = !$('pmlist').hidden; };
   $('bQuit').onclick = () => show('title');
   $('bRematch').onclick = () => resAction();
   $('bChange').onclick = () => openSelect(selMode);
   $('bMenu').onclick = () => show('title');
+  // leaving the window or tab pauses the fight, so the CPU doesn't play on alone
+  const autoPause = () => { if (ui === 'fight' && game && game.phase !== 'matchEnd' && !paused && $('pResult').hidden) togglePause(); };
+  addEventListener('blur', autoPause);
+  document.addEventListener('visibilitychange', () => { if (document.hidden) autoPause(); });
   cv.addEventListener('pointerdown', () => { if (ui === 'vs' && vsFrames() > 30) startMatch(); else if (ui === 'ending') endEnding(); });
 }

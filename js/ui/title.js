@@ -58,8 +58,8 @@ const MOVES_HTML = `<dt class="hd">All fighters (facing right)</dt>
   <dt>L, L, H</dt><dd>Chain combo when the hits connect</dd>
   <dt>L or H, S</dt><dd>Cancel a connected hit into your special</dd>
   <dt>K + L</dt><dd>ULTIMATE when SUPER (the gold bar) is full: Heavy and Special together (P2: . + /, or ↓ → + Special)</dd>
-  <dt>SP gauge</dt><dd>The blue bar under SUPER: land lights and heavies to charge your special</dd>
-  <dt>Rage</dt><dd>Below 30% health: 10% more damage and a full SUPER, once a round</dd>
+  <dt>SP gauge</dt><dd>The blue bar under SUPER: empty at the start of each round; land lights and heavies to charge your special</dd>
+  <dt>Rage</dt><dd>Below 30% health: 10% more damage and a third of a SUPER bar, once a round</dd>
   <dt class="hd">Specials and ultimates</dt>` +
   CHARS.map(ch => `<dt>${firstName(ch)}</dt><dd>${ch.moves.special.name} · Ultimate: ${ch.moves.ult.name}</dd>`).join('');
 export function initTitle() {

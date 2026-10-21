@@ -8,6 +8,8 @@
 .mi:hover,.mi:focus,.mi.cur{color:var(--accent)}
 .mi:hover::before,.mi:focus::before,.mi.cur::before{visibility:visible;animation:nudge .5s steps(2) infinite}
 .mi:focus-visible{outline:2px dashed var(--accent);outline-offset:2px}
+/* touch screens: menu items get a full 44px tap target, text centred in it */
+@media (pointer:coarse){.mi{display:flex;align-items:center;min-height:44px}}
 .btn{font-family:var(--display);font-size:10px;line-height:1.4;text-transform:uppercase;padding:10px 12px;min-height:44px;border:3px solid var(--fg);border-radius:0;background:var(--panel);color:var(--fg);cursor:pointer;box-shadow:4px 4px 0 #000;transition:transform .08s steps(2),box-shadow .08s steps(2)}
 .btn:hover{transform:translate(-2px,-2px);box-shadow:6px 6px 0 #000}
 .btn:active{transform:translate(4px,4px);box-shadow:none}

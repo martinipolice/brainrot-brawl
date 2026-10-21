@@ -1,3 +1,4 @@
+import { load, save } from '../core/settings.js';
 import { ui, tick } from '../core/state.js';
 import { miniFrame, stand, demoPose } from '../render/figures.js';
 import { CHARS, firstName } from '../game/roster.js';
@@ -26,9 +27,12 @@ const infoHTML = ch => `<h3>${ch.name}</h3>
 // mode: 1 = Versus CPU, 2 = two players, 'arcade' = arcade ladder (only player 1 picks)
 const mousePlayer = () => !sel || sel.done ? -1 : sel.mode !== 2 ? sel.step : !sel.lock[0] ? 0 : !sel.lock[1] ? 1 : -1;
 const pickers = () => sel.mode !== 2 ? [sel.step] : [0, 1].filter(p => !sel.lock[p]);
+// the cursors start on the fighters picked last time (remembered in this browser)
+const PICKKEY = 'brainrot-brawl-picks';
+const lastPicks = () => { try { const p = JSON.parse(load(PICKKEY)); if (p.length === 2 && p.every(i => Number.isInteger(i) && i >= 0 && i < CHARS.length)) return p; } catch (e) { } return [0, 3]; };
 export function openSelect(mode) {
   setSelMode(mode);
-  sel = { mode, cur: [0, 3], lock: [false, false], step: 0, t0: performance.now(), shown: -1, done: false, info: [-1, -1] };
+  sel = { mode, cur: lastPicks(), lock: [false, false], step: 0, t0: performance.now(), shown: -1, done: false, info: [-1, -1] };
   portraits.forEach(b => b.querySelector('.t2').textContent = mode === 2 ? '2P' : 'CPU');
   $('pw1').textContent = mode === 2 ? '2P' : 'CPU';
   $('selHint').textContent = mode === 2 ? '1P: WASD + J · 2P: Arrows + , · K or . undo · Esc back' : 'WASD or arrows move · J or Enter select · Esc back';
@@ -50,11 +54,11 @@ function lockIn(p) {
   if (sel.lock[p] || sel.done) return;
   sel.lock[p] = true; sfx('lock');
   const side = $('side' + p); side.classList.remove('locked'); void side.offsetWidth; side.classList.add('locked');
-  if (sel.mode === 'arcade') { sel.done = true; setTimeout(() => { if (ui === 'select' && sel && sel.done) startArcade(sel.cur[0]); }, 550); }
+  if (sel.mode === 'arcade') { sel.done = true; save(PICKKEY, JSON.stringify([sel.cur[0], lastPicks()[1]])); setTimeout(() => { if (ui === 'select' && sel && sel.done) startArcade(sel.cur[0]); }, 550); }
   else {
     if (sel.mode === 1 && p === 0) { sel.step = 1; sel.t0 = performance.now(); sel.shown = -1; }
     if (sel.lock[0] && sel.lock[1]) {
-      sel.done = true; setPicks([sel.cur[0], sel.cur[1]]);
+      sel.done = true; setPicks([sel.cur[0], sel.cur[1]]); save(PICKKEY, JSON.stringify(sel.cur));
       setTimeout(() => { if (ui === 'select' && sel && sel.done) startVS(); }, 550);
     }
   }

@@ -1,6 +1,6 @@
 # Martini's Brainrot Brawl
 
-A game by **martinipolice**. Current version: **v1.6.0** (shown under the game screen).
+A game by **martinipolice**. Current version: **v1.7.0** (shown under the game screen).
 
 A Street Fighter-style 1v1 pixel-art browser fighter starring Italian brainrot memes. It's plain HTML, CSS and JavaScript modules, with no build step and no dependencies.
 
@@ -32,12 +32,12 @@ Against the CPU, losing gives you a 9-second CONTINUE countdown before GAME OVER
 | Light · heavy · special | J K L (F G H also work) | , . / (or Numpad 1 2 3) |
 | Ultimate (SUPER full) | K + L together | . + / together |
 
-Esc pauses (the pause menu has the move list), M mutes and C switches the CRT filter. In menus, the arrow keys or WASD move the cursor and Enter or J selects. On touch screens, on-screen buttons control Player 1, including an ULT button.
+Esc pauses; the pause menu can restart the match or show the move list, and switching to another window or tab pauses the fight for you. Pressing Light, Heavy or Special skips the ROUND call and the rest of an ultimate cut-in. Character select starts on the fighters you picked last time. M mutes and C switches the CRT filter. In menus, the arrow keys or WASD move the cursor and Enter or J selects. On touch screens, on-screen buttons control Player 1, including an ULT button.
 
 ## How a fight works
-- **SP gauge (special):** you start each round with one special ready. After that, landing a light attack charges the gauge by 25% and a heavy by 40% (blocked hits count half). A full gauge lets you use your special.
-- **SUPER meter (ultimate):** fills as you deal damage, and a little when you take it. When it's full, press Heavy + Special together (↓ → + Special also works). The fight freezes for a slow-motion cut-in, and the ultimate opens in slow motion before playing out at full speed.
-- **Rage:** when a fighter drops below 30% health, they turn red, hit 10% harder for the rest of the round, and their SUPER fills once: a comeback ultimate.
+- **SP gauge (special):** starts each round empty. Landing a light attack charges it by 25% and a heavy by 40% (blocked hits count half). A full gauge lets you use your special.
+- **SUPER meter (ultimate):** fills slowly as you deal damage, and a little when you take it, and carries over between rounds. When it's full, press Heavy + Special together (↓ → + Special also works). The fight freezes for a slow-motion cut-in, and the ultimate opens in slow motion before playing out at full speed.
+- **Rage:** when a fighter drops below 30% health, they turn red, hit 10% harder for the rest of the round, and their SUPER jumps by 35%, once a round.
 
 Every fighter also has these moves (written for facing right):
 
@@ -60,7 +60,7 @@ Every fighter also has these moves (written for facing right):
 Blocking takes 15% chip damage (30% against ultimates). When two projectiles meet, they cancel out, except the Tsunami, which washes through.
 
 ### Balance
-Tuned with simulated CPU-vs-CPU rounds (250–400 per pairing). At mid skill every fighter wins 48–52% of rounds. Like most fighting games, it shifts with skill: slow, hard-hitting Tung does best among players who rarely block, and the fast fighters do best among players who guard well. In simulation, the first fighter to hit rage goes on to win about a quarter of those rounds.
+Tuned with simulated CPU-vs-CPU matches: 1,800 matches across three CPU skill levels (Easy, Normal and Hard). Averaged over the three, every fighter wins 48–53% of rounds, and a round at Normal lasts about 30 seconds. Like most fighting games, it shifts with skill: slow, hard-hitting Tung does best against players who rarely block, and the fast fighters (Tralalero and Ballerina) do best against players who guard well. Health: Tralalero 124, Tung 108, Bombardiro 123, Ballerina 129.
 
 ## Sound
 Everything is synthesized live with the Web Audio API; there are no audio files. Effects, menu sounds and music each play through their own channel into a master low-pass and a limiter, so a pile-up of hits never distorts. Effects get a touch of room reverb.
@@ -92,13 +92,15 @@ When a hit lands, the game freezes briefly (hitstop) and the defender shudders. 
 | `js/ai/cpu.js` | CPU opponent |
 | `js/ui/` | Screens: title and options, character select, VS splash, ending, menus, screen switching and match flow |
 | `js/tests/selftest.js` | The self-check |
+| `img/` | Tab icon and home-screen icon (Tung's face) and the 1200×630 link preview image, drawn with the game's own art |
 
 Shared mutable values (the current match, which screen is showing and so on) live in the module that owns them. Other modules read them through imports and change them through that module's setters, such as `setGame()`, because an imported binding is read-only. The shape helpers draw into one target at a time; `withTarget(canvas, draw)` points them at another canvas for the length of `draw` and always switches back.
 
 ## Self-check
-Serve the folder as above and open `index.html#selftest`, or run `selfTest()` in the console. It runs 19 checks, including hits and blocking, guarding by holding back, the L, L, H chain, dashing, the SP gauge, rage, all three ultimate inputs (and that they need a full meter), KOs and the score bonuses.
+Serve the folder as above and open `index.html#selftest`, or run `selfTest()` in the console. It runs 20 checks, including hits and blocking, guarding by holding back, the L, L, H chain, dashing, the SP gauge (and that it starts empty), rage, all three ultimate inputs (and that they need a full meter), KOs and the score bonuses.
 
 ## Changelog
+- **v1.7.0:** Ultimate cut-ins are close-ups framed on each fighter's face; rounds last longer (more health, rebalanced so every fighter wins about half its rounds across CPU levels); the SP gauge starts each round empty; SUPER fills more slowly and rage adds 35% instead of a full bar; pause menu Restart match; the fight pauses itself when you switch windows; Light, Heavy or Special skips the ROUND call and cut-ins; character select remembers your last picks; menu items are full-size tap targets on touch screens; a tab icon, a home-screen icon and a link preview image for sharing.
 - **v1.6.0:** Slow-motion ultimate cut-in that opens the move in slow motion; knocked-out fighters tumble, bounce and settle on the sand with physics instead of a fixed fall; keys used in the pause menu no longer make fighters attack or jump on resume; holding M no longer flickers mute; the code is split into CSS files and JavaScript modules.
 - **v1.5.0:** Redrawn fighters closer to the source memes (torpedo-shaped Tralalero, Tung's carved drum slit and grin, a green crocodile-bodied Bombardiro, Ballerina's pointe-shoe ribbons and layered tutu); a closer battle camera that follows the fight on a smooth spring with a deadzone, frames projectiles, and keeps the ground in view during jumps, so the fighters are about 50% bigger on screen; slimmer HUD; knocked-out fighters now lie on the sand instead of sinking into it; centred title menu and character select; header is just the title; touch controls fit phones down to 320px; faster palette lookup; Ballerina 104 HP; new battle theme that builds with the fight, per-fighter hit sounds, a louder and cleaner mix, and a Japanese-accented arcade announcer with more lines.
 - **v1.4.0:** Martini's title and logo, a cleaner title card (logo and menu only), a cleaner character select (name and SPD/POW/HP bars), SP gauge charged by hits, Heavy + Special ultimate, rage mode, new sound mix (effects and music volumes, title theme, adaptive drums, ducking, announcer), compact controls card, version label, rebalance.

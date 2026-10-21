@@ -12,6 +12,8 @@ import { sfx } from '../audio/sfx.js';
 const overlap = (ax, ay, aw, ah, bx, by, bw, bh) => ax < bx + bw && ax + aw > bx && ay < by + bh && ay + ah > by;
 const hurt = f => [f.x - f.ch.w / 2, f.y - f.ch.h, f.ch.w, f.ch.h];
 
+// SUPER meter gained per point of damage, for the attacker and the defender, on clean and on blocked hits.
+const METER = { deal: .25, take: .17, dealBlocked: .12, takeBlocked: .08 };
 function applyHit(t, h, attacker) {
   if (t.state === 'ko') return;
   if (attacker && attacker.rage) h = { ...h, dmg: h.dmg * 1.1 };
@@ -22,13 +24,13 @@ function applyHit(t, h, attacker) {
   if (blocking) {
     t.hp -= h.dmg * (h.chip ?? .15); t.stun = Math.round(h.stun * .7); t.state = 'blockstun'; t.vx = h.dir * Math.min(h.kb, 12) * .6;
     t.sq = .08; t.barShake = 1.5;
-    if (!h.ult) gainMeter(attacker, h.dmg * .35); gainMeter(t, h.dmg * .25); gainSp(attacker, h.src, .5);
+    if (!h.ult) gainMeter(attacker, h.dmg * METER.dealBlocked); gainMeter(t, h.dmg * METER.takeBlocked); gainSp(attacker, h.src, .5);
     if (attacker) game.score[attacker.i] += 20;
     spark(h.x, h.y, 'block'); sfx('block');
     burst(h.x, h.y, 6, { ang: h.dir > 0 ? Math.PI : 0, spread: 2, sp: [2, 6], g: .2, life: [8, 14], cols: ['#8fe8ff', '#9fd6ff', '#fff'], sz: 2 });
   } else if (t.atk && t.atk.armor && t.atkT < t.atk.startup + t.atk.active) {
     t.hp -= h.dmg; t.flash = 6; t.jit = 1; t.barShake = 3; t.hitFlash = 10; spark(h.x, h.y, 'hit'); sfx('hit'); // armored: takes damage, keeps swinging
-    if (!h.ult) gainMeter(attacker, h.dmg * .7); gainMeter(t, h.dmg * .5); gainSp(attacker, h.src, 1);
+    if (!h.ult) gainMeter(attacker, h.dmg * METER.deal); gainMeter(t, h.dmg * METER.take); gainSp(attacker, h.src, 1);
     if (attacker) game.score[attacker.i] += Math.round(h.dmg) * 100;
     burst(h.x, h.y, 8, { ang: h.dir > 0 ? 0 : Math.PI, spread: 1.6, sp: [3, 9], life: [10, 18], cols: ['#fff', '#ffe45c', '#e6c38c'], floor: true });
   } else {
@@ -36,7 +38,7 @@ function applyHit(t, h, attacker) {
     if (h.launch) t.vy = -11; // launcher pops them up for a juggle
     if (h.finisher) t.vy = -9;
     t.flash = 6; t.combo++; t.jit = 1; t.sq = -.18; t.sqv = 0; t.barShake = big ? 6 : 3; t.hitFlash = 12;
-    if (!h.ult) gainMeter(attacker, h.dmg * .7); gainMeter(t, h.dmg * .5); gainSp(attacker, h.src, 1);
+    if (!h.ult) gainMeter(attacker, h.dmg * METER.deal); gainMeter(t, h.dmg * METER.take); gainSp(attacker, h.src, 1);
     if (attacker) game.score[attacker.i] += Math.round(h.dmg) * 100 + (t.combo >= 2 ? t.combo * 200 : 0);
     if (attacker && t.combo >= 2) { attacker.comboN = t.combo; attacker.comboShow = 70; attacker.comboPop = 1; sfx('combo', t.combo); if (t.combo === 5) announce('excellent!'); }
     spark(h.x, h.y, 'hit'); sfx(big ? 'heavy' : 'hit'); if (attacker) sfx('fl_' + attacker.ch.id); if (big) duck(.7, .12); addTrauma(h.finisher ? 'big' : big ? 'heavy' : 'medium');
