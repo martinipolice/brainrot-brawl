@@ -1,6 +1,6 @@
 import { game, ui, paused, tick, setTick } from './core/state.js';
 import { renderFight } from './render/fight.js';
-import { paintStage } from './render/stage.js';
+import { stageCanvas } from './render/stage.js';
 import { updateFx } from './game/effects.js';
 import { step } from './game/match.js';
 import { music } from './audio/music.js';
@@ -13,10 +13,10 @@ import { bindMenus } from './ui/menu.js';
 import { sel, buildRoster, renderSelect, bindSelect } from './ui/select.js';
 import { crtOn, setCRT, initTitle, renderLogo, bindTitle } from './ui/title.js';
 import { vs, renderVS } from './ui/vs.js';
+import { STAGES } from './stages/index.js';
 import { selfTest } from './tests/selftest.js';
 
-// Entry point: paint the stage, fill in and wire up the page, then run the game loop from the title screen.
-paintStage();
+// Entry point: fill in and wire up the page, then run the game loop from the title screen.
 initTitle();
 buildRoster();
 bindKeys();
@@ -50,3 +50,4 @@ requestAnimationFrame(frame);
 window.selfTest = selfTest; // modules keep their names private, so expose the self-check to the console
 if (location.hash === '#selftest') selfTest();
 show('title');
+setTimeout(() => STAGES.forEach(stageCanvas), 400); // paint every stage while the title screen is up, so no fight starts with a hitch

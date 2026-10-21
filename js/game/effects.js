@@ -25,7 +25,10 @@ export function spark(x, y, kind) { game.fx.push({ kind, x, y, T: 0, life: kind 
 
 // cosmetic state: runs every 60 Hz tick, even during hitstop, so sparks fly while the fighters freeze
 export const pool = [];
+// Stage reactions to the fight: props swing, crowds cheer. Purely cosmetic, they never change damage or position.
+export function react(type, d = {}) { const s = game.stage; if (s && s.def.on) s.def.on(type, d, s.st); }
 export function updateFx() {
+  if (game.stage && game.stage.def.tick) game.stage.def.tick(game.stage.st);
   const rate = game.slowT > 0 ? .4 : 1;
   for (const q of game.parts) {
     q.T += rate; q.vx *= q.drag; q.vy = q.vy * q.drag + q.g * rate; q.x += q.vx * rate; q.y += q.vy * rate;

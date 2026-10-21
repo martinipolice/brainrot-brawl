@@ -7,13 +7,13 @@ import { drawText } from '../render/text.js';
 import { CHARS, PCOL, firstName } from '../game/roster.js';
 import { announce } from '../audio/announcer.js';
 import { sfx } from '../audio/sfx.js';
-import { selMode, picks, arcade, show, startMatch } from './flow.js';
+import { selMode, picks, arcade, show, startMatch, chooseStage } from './flow.js';
 
 // VS splash between select and fight: split screen, fighters slide in, VS slams down. In arcade it also names the stage.
 export let vs = null;
 export const setVs = v => { vs = v; };
 export const vsFrames = () => vs ? (performance.now() - vs.t0) / (1000 / 60) : 0;
-export function startVS() { vs = { t0: performance.now(), slam: false }; show('vs'); sfx('whoosh'); }
+export function startVS() { vs = { t0: performance.now(), slam: false, stage: chooseStage() }; show('vs'); sfx('whoosh'); }
 export function renderVS() {
   const t = vsFrames(), c = ctx, boss = selMode === 'arcade' && arcade.order[arcade.stage].boss;
   if (t > 165) { startMatch(); return; }
@@ -39,6 +39,7 @@ export function renderVS() {
   if (t >= 18) {
     const k = Math.min(1, (t - 18) / 6);
     drawText('VS', LW / 2, LH / 2 - 8, 16, '#ffd23f', { scale: 3 + 3 * (1 - k), shadow: '#ff4f7b' });
+    if (t >= 30) drawText(vs.stage.name.toUpperCase(), LW / 2, LH / 2 + 22, 8, '#f7efe3', { shadow: '#000' });
     if (t < 21 && fxFlash()) { c.fillStyle = 'rgba(255,255,255,.6)'; c.fillRect(0, 0, LW, LH); }
   }
 }

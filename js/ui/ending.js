@@ -3,7 +3,8 @@ import { tick } from '../core/state.js';
 import { easeOutBack, pad7 } from '../core/util.js';
 import { ctx } from '../render/canvas.js';
 import { demoPose, drawFigure } from '../render/figures.js';
-import { bgc } from '../render/stage.js';
+import { stageCanvas } from '../render/stage.js';
+import { STAGES } from '../stages/index.js';
 import { drawText } from '../render/text.js';
 import { CHARS, PCOL, firstName } from '../game/roster.js';
 import { announce } from '../audio/announcer.js';
@@ -17,6 +18,7 @@ export function showEnding() { ending = { t0: performance.now(), ch: CHARS[arcad
 export function renderEnding() {
   const t = endFrames(), c = ctx;
   c.setTransform(1, 0, 0, 1, 0, 0); c.imageSmoothingEnabled = false; c.globalAlpha = 1;
+  const bgc = stageCanvas(STAGES[0]); // the credits roll over the beach
   c.drawImage(bgc, (bgc.width - LW) / 2, (bgc.height - LH) / 2, LW, LH, 0, 0, LW, LH); c.fillStyle = 'rgba(10,6,20,.6)'; c.fillRect(0, 0, LW, LH);
   const cols = ['#ffd23f', '#ff4f7b', '#3fb8ff', '#fff', '#ff8fc4'];
   for (let i = 0; i < 40; i++) { c.fillStyle = cols[i % 5]; c.fillRect((i * 53 + Math.round(t * .3 * (i % 3 + 1))) % LW, (i * 37 + Math.round(t * (1 + i % 3) * .5)) % LH, 2, 2); } // confetti

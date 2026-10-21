@@ -3,7 +3,7 @@ import { HIKEY, save, hi, setHi } from '../core/settings.js';
 import { game, setGame } from '../core/state.js';
 import { CAMY } from '../render/camera.js';
 import { checkMelee, updateProj, keepOnScreen, separate } from './combat.js';
-import { addTrauma, pool } from './effects.js';
+import { addTrauma, pool, react } from './effects.js';
 import { updateFighter } from './fighter.js';
 import { firstName } from './roster.js';
 import { announce } from '../audio/announcer.js';
@@ -29,7 +29,7 @@ function resetRound() {
   game.trails.forEach(t => pool.push(t.c));
   game.p = game.p.map((f, i) => Object.assign(makeFighter(f.ch, i), { wins: f.wins, meter: f.meter, shadow: f.shadow, hp: maxHp(f), ghost: maxHp(f) }));
   Object.assign(game, { timer: 3600, phase: 'intro', phaseT: 0 }, freshFx());
-  setMStep(0);
+  setMStep(0); react('round'); // props broken last round are put back
 }
 
 // The final arcade boss is a shadow copy of your own fighter with 30% more health.

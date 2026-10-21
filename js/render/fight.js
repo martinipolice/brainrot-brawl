@@ -1,4 +1,4 @@
-import { W, GROUND, OUT, LW, LH } from '../core/constants.js';
+import { GROUND, OUT, LW, LH } from '../core/constants.js';
 import { fxFlash } from '../core/settings.js';
 import { game, paused, tick } from '../core/state.js';
 import { easeOutBack } from '../core/util.js';
@@ -7,10 +7,11 @@ import { ctx, layCv, lay } from './canvas.js';
 import { drawHUD, drawBanner, drawCutscene } from './hud.js';
 import { pixelize, tint, SHADOW_TINT } from './pixel.js';
 import { g, withTarget, E, P, S } from './shapes.js';
-import { bgc } from './stage.js';
+import { stageCanvas } from './stage.js';
 import { drawText } from './text.js';
 import { pool } from '../game/effects.js';
 import { PCOL } from '../game/roster.js';
+import { STAGES } from '../stages/index.js';
 
 // ---------- rendering (all at 320x180) ----------
 // The fight scene: fighters through the pixel pass, shadows, afterimages, projectiles, effects and particles.
@@ -95,26 +96,23 @@ function drawFx(e) {
   }
   g.restore();
 }
-function drawAmbient(cam) {
-  const z = cam.z;
-  ctx.fillStyle = '#9a2f66';
-  for (let i = 0; i < 3; i++) { // drifting clouds
-    const [x, y] = toLo(cam, ((tick * .15 + i * 380) % (W + 240)) - 120, 250 + i * 16), r = (a, b, w, h) => ctx.fillRect(x + Math.round(a * z), y + Math.round(b * z), Math.round(w * z), Math.round(h * z));
-    r(0, 0, 24, 3); r(4, -3, 14, 3); r(8, -5, 6, 2);
-  }
-  ctx.fillStyle = '#fff1b0';
-  for (let i = 0; i < 16; i++) { // sea glints
-    if (((tick / 10 | 0) + i * 7) % 6) continue;
-    const [x, y] = toLo(cam, (i * 137) % W, 345 + (i * 53) % 55); ctx.fillRect(x, y, Math.max(2, Math.round(2 * z)), Math.max(1, Math.round(z)));
-  }
+// draw() in world space onto the layer, pixelize just the screen box covering world box x0..x1, y0..y1, copy it over
+function drawPixelized(cam, wx0, wy0, wx1, wy1, draw) {
+  const bx = Math.max(0, Math.floor(wx0 * cam.s + cam.ox)), by = Math.max(0, Math.floor(wy0 * cam.s + cam.oy));
+  const bw = Math.min(LW, Math.ceil(wx1 * cam.s + cam.ox) + 1) - bx, bh = Math.min(LH, Math.ceil(wy1 * cam.s + cam.oy) + 1) - by;
+  if (bw <= 0 || bh <= 0) return;
+  lay.setTransform(1, 0, 0, 1, 0, 0); lay.clearRect(bx, by, bw, bh); lay.setTransform(cam.s, 0, 0, cam.s, cam.ox, cam.oy);
+  lay.ol = 1.1 / cam.s; withTarget(lay, draw);
+  lay.setTransform(1, 0, 0, 1, 0, 0); pixelize(lay, bx, by, bw, bh); ctx.drawImage(layCv, bx, by, bw, bh, bx, by, bw, bh);
 }
 
 export function renderFight() {
-  const cam = camera(), c = ctx;
+  const cam = camera(), c = ctx, stage = game.stage || (game.stage = { def: STAGES[0], st: {} }), sd = stage.def, bg = stageCanvas(sd);
   c.setTransform(1, 0, 0, 1, 0, 0); c.imageSmoothingEnabled = false; c.globalAlpha = 1;
   c.fillStyle = OUT; c.fillRect(0, 0, LW, LH);
-  c.drawImage(bgc, cam.ox, cam.oy, Math.round(bgc.width * (1 + game.zp)), Math.round(bgc.height * (1 + game.zp)));
-  drawAmbient(cam);
+  c.drawImage(bg, cam.ox, cam.oy, Math.round(bg.width * (1 + game.zp)), Math.round(bg.height * (1 + game.zp)));
+  if (sd.ambient) sd.ambient(c, cam, stage.st, tick);
+  if (sd.props) sd.boxes.forEach((b, i) => drawPixelized(cam, ...b, () => sd.props(stage.st, i, tick)));
   game.p.forEach(f => drawShadow(f, cam));
   for (const t of game.trails) { c.globalAlpha = .45 * (1 - t.T / t.life); c.drawImage(t.c, t.x, t.y); }
   c.globalAlpha = 1;
@@ -126,13 +124,7 @@ export function renderFight() {
       const r = e.kind === 'blast' ? 150 : e.kind === 'tsunami' ? 120 : 60;
       wx0 = Math.min(wx0, e.x - r); wy0 = Math.min(wy0, e.y - r); wx1 = Math.max(wx1, e.x + r); wy1 = Math.max(wy1, e.y + r);
     }
-    const bx = Math.max(0, Math.floor(wx0 * cam.s + cam.ox)), by = Math.max(0, Math.floor(wy0 * cam.s + cam.oy));
-    const bw = Math.min(LW, Math.ceil(wx1 * cam.s + cam.ox) + 1) - bx, bh = Math.min(LH, Math.ceil(wy1 * cam.s + cam.oy) + 1) - by;
-    if (bw > 0 && bh > 0) {
-      lay.setTransform(1, 0, 0, 1, 0, 0); lay.clearRect(bx, by, bw, bh); lay.setTransform(cam.s, 0, 0, cam.s, cam.ox, cam.oy);
-      lay.ol = 1.1 / cam.s; withTarget(lay, () => { game.proj.forEach(drawProj); game.fx.forEach(drawFx); });
-      lay.setTransform(1, 0, 0, 1, 0, 0); pixelize(lay, bx, by, bw, bh); c.drawImage(layCv, bx, by, bw, bh, bx, by, bw, bh);
-    }
+    drawPixelized(cam, wx0, wy0, wx1, wy1, () => { game.proj.forEach(drawProj); game.fx.forEach(drawFx); });
   }
   for (const q of game.parts) {
     const k = q.T / q.life, sz = Math.max(1, Math.round(q.sz * (1 - k * k) * cam.z)), [x, y] = toLo(cam, q.x, q.y);

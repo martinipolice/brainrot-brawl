@@ -1,7 +1,7 @@
 import { W, GROUND } from '../core/constants.js';
 import { game } from '../core/state.js';
 import { spawnProj } from './combat.js';
-import { addTrauma, burst, SAND, dust, pop } from './effects.js';
+import { addTrauma, burst, SAND, dust, pop, react } from './effects.js';
 import { maxHp } from './match.js';
 import { duck } from '../audio/mixer.js';
 import { sfx } from '../audio/sfx.js';
@@ -118,7 +118,7 @@ export function updateFighter(f, foe, inp) {
   const nx = Math.max(40, Math.min(W - 40, f.x));
   if (nx !== f.x && (f.stun > 0 || f.state === 'ko') && Math.abs(f.vx) > 3) { // wall splat
     burst(nx + Math.sign(f.vx) * 8, f.y - f.ch.h / 2, 8, { ang: f.vx > 0 ? Math.PI : 0, spread: 1.8, sp: [1, 4], g: .15, life: [12, 22], cols: SAND, sz: 2 });
-    f.vx = -f.vx * .5; f.rotV *= -.5; addTrauma('small'); sfx('wall'); // a tumbling body bounces off the wall spinning back
+    react('wall', { x: nx, y: f.y }); f.vx = -f.vx * .5; f.rotV *= -.5; addTrauma('small'); sfx('wall'); // a tumbling body bounces off the wall spinning back
   }
   f.x = nx;
   if (f.y >= GROUND && f.state === 'walk' && f.T % 14 === 0) { dust(f.x - f.face * 14, 2, 1.2); sfx('step'); }

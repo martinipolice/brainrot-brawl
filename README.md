@@ -1,6 +1,6 @@
 # Martini's Brainrot Brawl
 
-A game by **martinipolice**. Current version: **v1.7.1** (shown under the game screen).
+A game by **martinipolice**. Current version: **v1.8.0** (shown under the game screen).
 
 A Street Fighter-style 1v1 pixel-art browser fighter starring Italian brainrot memes. It's plain HTML, CSS and JavaScript modules, with no build step and no dependencies.
 
@@ -59,6 +59,18 @@ Every fighter also has these moves (written for facing right):
 
 Blocking takes 15% chip damage (30% against ultimates). When two projectiles meet, they cancel out, except the Tsunami, which washes through.
 
+## Stages
+Versus CPU and 2 Players pick one of five stages at random for each match, and the VS screen names it. In arcade, each opponent fights you on their home stage and the shadow boss waits in The Storm. Every stage reacts to the fight, purely for show: nothing on a stage changes damage or position.
+
+| Stage | Home of | What reacts |
+|---|---|---|
+| Sunset Beach | | Clouds drift and the sea glints |
+| Sahur Village | Tung | Lanterns sway, and swing after big hits. Neighbours lean out of their windows to wave at combos and KOs. The kentongan drum in the guard post swings with every big hit and rings "TUNG!" when one lands close by, and on every KO |
+| Bombardiro Airfield | Bombardiro | A bomber crosses the sky every ten seconds and drops a bomb far out on the field. The windsock flaps, the tower beacon flashes after a KO, and two mechanics cheer |
+| Opera Cappuccina | Ballerina | Spotlights follow both fighters and the footlights flare on big hits. The audience stands for combos and KOs, and a KO brings the chandelier crashing down and roses onto the stage (it's hung again next round) |
+| Shark Pier | Tralalero | Seagulls circle and scatter after big hits, waves throw spray over the railing, the lighthouse blinks, and the crate stacks at each end smash when someone is slammed into them (they're stacked again next round) |
+| The Storm | Shadow boss | Rain, and lightning every few seconds and on every KO. The flash follows the Shake & flash option |
+
 ### Balance
 Tuned with simulated CPU-vs-CPU matches: 1,800 matches across three CPU skill levels (Easy, Normal and Hard). Averaged over the three, every fighter wins 48–53% of rounds, and a round at Normal lasts about 30 seconds. Like most fighting games, it shifts with skill: slow, hard-hitting Tung does best against players who rarely block, and the fast fighters (Tralalero and Ballerina) do best against players who guard well. Health: Tralalero 124, Tung 108, Bombardiro 123, Ballerina 129.
 
@@ -86,6 +98,7 @@ When a hit lands, the game freezes briefly (hitstop) and the defender shudders. 
 | `js/main.js` | Entry point: paints the stage, wires up the page, runs the fixed 60 Hz game loop |
 | `js/core/` | Constants, saved settings, shared game state, small helpers |
 | `js/render/` | Canvas and offscreen layer, shape helpers, pixel pass, pixel text, camera, stage, fight scene, HUD, fighter previews |
+| `js/stages/` | The stages: each one's backdrop, moving details and reactions, and the list that picks them |
 | `js/game/` | Fighters' art, roster, match and round flow, the per-tick fighter update, combat and projectiles, effects |
 | `js/audio/` | Mixer, sound effects, announcer, music |
 | `js/input/` | Key maps, global keys and screen routing, touch pad |
@@ -100,6 +113,7 @@ Shared mutable values (the current match, which screen is showing and so on) liv
 Serve the folder as above and open `index.html#selftest`, or run `selfTest()` in the console. It runs 20 checks, including hits and blocking, guarding by holding back, the L, L, H chain, dashing, the SP gauge (and that it starts empty), rage, all three ultimate inputs (and that they need a full meter), KOs and the score bonuses.
 
 ## Changelog
+- **v1.8.0:** Five new stages: Sahur Village (Tung), Bombardiro Airfield, Opera Cappuccina (Ballerina), Shark Pier (Tralalero) and The Storm for the shadow boss, each reacting to the fight with swinging lanterns and drums, cheering crowds, a bomber flyover, a falling chandelier, smashing crates and lightning, all visual only. Versus picks a stage at random and the VS screen names it; arcade fights each opponent on their home stage.
 - **v1.7.1:** New tab and home-screen icon: Tung's grinning face as 32×32 pixel art in the game's palette, framed in the logo's gold-to-pink.
 - **v1.7.0:** Ultimate cut-ins are close-ups framed on each fighter's face; rounds last longer (more health, rebalanced so every fighter wins about half its rounds across CPU levels); the SP gauge starts each round empty; SUPER fills more slowly and rage adds 35% instead of a full bar; pause menu Restart match; the fight pauses itself when you switch windows; Light, Heavy or Special skips the ROUND call and cut-ins; character select remembers your last picks; menu items are full-size tap targets on touch screens; a tab icon, a home-screen icon and a link preview image for sharing.
 - **v1.6.0:** Slow-motion ultimate cut-in that opens the move in slow motion; knocked-out fighters tumble, bounce and settle on the sand with physics instead of a fixed fall; keys used in the pause menu no longer make fighters attack or jump on resume; holding M no longer flickers mute; the code is split into CSS files and JavaScript modules.

@@ -1,7 +1,7 @@
 import { RM } from '../core/constants.js';
 import { hi, CPU_LEVELS, opts } from '../core/settings.js';
 import { game, ui, paused, setUi, setPaused } from '../core/state.js';
-import { pad7 } from '../core/util.js';
+import { pad7, pickOne } from '../core/util.js';
 import { cv } from '../render/canvas.js';
 import { newGame, maxHp } from '../game/match.js';
 import { CHARS } from '../game/roster.js';
@@ -9,11 +9,12 @@ import { announce } from '../audio/announcer.js';
 import { sfx } from '../audio/sfx.js';
 import { MAPS, keyCtrl } from '../input/keyboard.js';
 import { cpuCtrl } from '../ai/cpu.js';
+import { STAGES, stageById } from '../stages/index.js';
 import { $ } from './dom.js';
 import { showEnding, endEnding } from './ending.js';
 import { openSelect } from './select.js';
 import { started, setLogoT0, setTitleView } from './title.js';
-import { setVs, vsFrames, startVS } from './vs.js';
+import { vs, setVs, vsFrames, startVS } from './vs.js';
 
 // Switching screens, and the match flow: the arcade ladder, starting a match, results, continue and pause.
 export let selMode = 1, picks = [0, 1], arcade = null, cont = null;
@@ -39,10 +40,19 @@ export function startArcade(me) {
 }
 function startStageVS() { selMode = 'arcade'; picks = [arcade.me, arcade.order[arcade.stage].c]; startVS(); }
 
+// The match's stage: arcade fights each opponent on their home stage (the shadow boss on its own); versus and 2 Players
+// pick one at random.
+export function chooseStage() {
+  if (selMode !== 'arcade') return pickOne(STAGES.filter(s => !s.boss));
+  const o = arcade.order[arcade.stage];
+  return o.boss ? stageById('storm') : STAGES.find(s => s.home === CHARS[o.c].id) || STAGES[0];
+}
 export function startMatch() {
+  const sd = (vs && vs.stage) || chooseStage(); // the VS screen already picked (and named) it
   const c = [CHARS[picks[0]], CHARS[picks[1]]], arc = selMode === 'arcade';
   const lvl = arc ? arcadeLevel() : CPU_LEVELS[opts.cpu];
   newGame(c[0], c[1], [keyCtrl(MAPS[0]), selMode === 2 ? keyCtrl(MAPS[1]) : cpuCtrl(1, lvl)], ['1P', selMode === 2 ? '2P' : 'CPU']);
+  game.stage = { def: sd, st: sd.init ? sd.init() : {} };
   if (arc) {
     game.arcade = true; game.score[0] = game.shown[0] = arcade.score;
     if (arcade.order[arcade.stage].boss) { const b = game.p[1]; b.shadow = true; b.hp = b.ghost = maxHp(b); }

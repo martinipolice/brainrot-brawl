@@ -2,7 +2,7 @@ import { W, GROUND } from '../core/constants.js';
 import { game } from '../core/state.js';
 import { pickOne } from '../core/util.js';
 import { MAXSEP } from '../render/camera.js';
-import { addTrauma, burst, pop, spark } from './effects.js';
+import { addTrauma, burst, pop, spark, react } from './effects.js';
 import { gainSp, checkRage, gainMeter } from './fighter.js';
 import { announce } from '../audio/announcer.js';
 import { duck, muffle } from '../audio/mixer.js';
@@ -40,10 +40,11 @@ function applyHit(t, h, attacker) {
     t.flash = 6; t.combo++; t.jit = 1; t.sq = -.18; t.sqv = 0; t.barShake = big ? 6 : 3; t.hitFlash = 12;
     if (!h.ult) gainMeter(attacker, h.dmg * METER.deal); gainMeter(t, h.dmg * METER.take); gainSp(attacker, h.src, 1);
     if (attacker) game.score[attacker.i] += Math.round(h.dmg) * 100 + (t.combo >= 2 ? t.combo * 200 : 0);
-    if (attacker && t.combo >= 2) { attacker.comboN = t.combo; attacker.comboShow = 70; attacker.comboPop = 1; sfx('combo', t.combo); if (t.combo === 5) announce('excellent!'); }
+    if (attacker && t.combo >= 2) { attacker.comboN = t.combo; attacker.comboShow = 70; attacker.comboPop = 1; sfx('combo', t.combo); if (t.combo === 5) announce('excellent!'); if (t.combo === 3) react('combo'); }
     spark(h.x, h.y, 'hit'); sfx(big ? 'heavy' : 'hit'); if (attacker) sfx('fl_' + attacker.ch.id); if (big) duck(.7, .12); addTrauma(h.finisher ? 'big' : big ? 'heavy' : 'medium');
     burst(h.x, h.y, big ? 18 : 10, { ang: h.dir > 0 ? 0 : Math.PI, spread: 1.7, sp: big ? [4, 14] : [3, 9], g: .35, life: [10, 22],
       cols: ['#fff', '#ffe45c', '#ffd23f', '#ffb13b'], sz: big ? 3 : 2, floor: true });
+    if (big) react('big', { x: h.x, y: h.y });
     if (big || h.word) {
       if (attacker) pop(pickOne(attacker.ch.words), h.x, h.y - 40);
       game.zp = Math.max(game.zp, h.finisher ? .16 : .07); game.zx = h.x; game.zy = h.y;
@@ -54,7 +55,7 @@ function applyHit(t, h, attacker) {
     Object.assign(t, { hp: 0, state: 'ko', atk: null, stun: 0, vy: -9, vx: h.dir * 6, rot: 0, rotV: -(.05 + Math.min(h.kb, 10) * .003) }); // harder hits spin the body faster
     Object.assign(game, { stop: 22, slowT: 60, koZoom: 80, zx: t.x, zy: t.y - t.ch.h / 2, flash: 6 }); addTrauma('ko');
     burst(t.x, t.y - t.ch.h / 2, 34, { sp: [3, 13], g: .25, life: [20, 40], cols: ['#ffd23f', '#ff4f7b', '#3fb8ff', '#fff', '#ff8fc4'], sz: 3, floor: true });
-    sfx('ko'); duck(.15, 1.2); muffle(1);
+    sfx('ko'); duck(.15, 1.2); muffle(1); react('ko', { x: t.x });
   }
 }
 
