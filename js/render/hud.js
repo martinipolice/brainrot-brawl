@@ -1,12 +1,10 @@
-import { OUT, PX, LW, LH } from '../core/constants.js';
+import { OUT, LW, LH } from '../core/constants.js';
 import { fxFlash } from '../core/settings.js';
 import { game, tick } from '../core/state.js';
 import { easeOutBack, pad7 } from '../core/util.js';
 import { toLo } from './camera.js';
-import { ctx, layCv, lay } from './canvas.js';
-import { stand } from './figures.js';
-import { pixelize } from './pixel.js';
-import { setG } from './shapes.js';
+import { ctx, layCv } from './canvas.js';
+import { figureLayer } from './figures.js';
 import { drawText, drawMono } from './text.js';
 import { maxHp } from '../game/match.js';
 import { PCOL, firstName } from '../game/roster.js';
@@ -90,7 +88,7 @@ export function drawBanner(cam) {
   }
 }
 // Ultimate cut-in: dim the fight, letterbox, a band in the player's colour with speed lines, the fighter sliding in big,
-// and the move's name. The fight itself is frozen while game.cut runs (see step).
+// and the move's name, all in slow motion. The fight itself is frozen while game.cut runs (see step).
 export function drawCutscene() {
   const cut = game.cut; if (!cut) return;
   const f = game.p[cut.who], t = cut.T, c = ctx, col = PCOL[cut.who], R = cut.who === 1;
@@ -101,21 +99,19 @@ export function drawCutscene() {
   if (bh < 4) return;
   c.fillStyle = R ? '#5a1028' : '#1b4a73'; c.fillRect(0, by, LW, bh);
   c.fillStyle = R ? '#9a2f66' : '#2d6fa0';
-  for (let i = 0; i < 14; i++) { // speed lines rushing away from the fighter's side
-    const y = by + 3 + (i * 13) % (bh - 6), len = 18 + (i * 17) % 40, run = (t * 12 + i * 47) % (LW + len);
+  for (let i = 0; i < 14; i++) { // speed lines drifting slowly away from the fighter's side
+    const y = by + 3 + (i * 13) % (bh - 6), len = 18 + (i * 17) % 40, run = (t * 2 + i * 47) % (LW + len);
     c.fillRect(Math.round(R ? LW - run : run - len), y, len, 1);
   }
   c.fillStyle = col; c.fillRect(0, by, LW, 2); c.fillRect(0, by + bh - 2, LW, 2);
-  // the fighter, three times size, slides in from its own side
-  const slide = 1 - easeOutBack(Math.min(1, t / 14)), fx = (R ? LW - 80 : 80) + (R ? 1 : -1) * slide * 170;
-  lay.setTransform(1, 0, 0, 1, 0, 0); lay.clearRect(0, 0, LW, LH); lay.setTransform(1 / PX, 0, 0, 1 / PX, 0, 0); setG(lay);
-  stand(f.ch, fx * PX, (by + bh + 34) * PX, 3, R ? -1 : 1, { s: 'special', ph: 1, T: tick });
-  setG(ctx); lay.setTransform(1, 0, 0, 1, 0, 0); pixelize(lay, 0, 0, LW, LH);
-  if (f.shadow) { lay.globalCompositeOperation = 'source-atop'; lay.fillStyle = 'rgba(40,0,70,.6)'; lay.fillRect(0, 0, LW, LH); lay.globalCompositeOperation = 'source-over'; }
+  // the fighter, three times size, glides in from its own side and keeps drifting while the view slowly pushes in;
+  // its pose animates at quarter speed
+  const slide = 1 - easeOutBack(Math.min(1, t / 20)), fx = (R ? LW - 80 : 80) + (R ? 1 : -1) * (slide * 170 - t * .15);
+  figureLayer(f.ch, fx, by + bh + 34, 3 + t * .004, R ? -1 : 1, { s: 'special', ph: 1, T: t * .25 }, f.shadow);
   c.drawImage(layCv, 0, by + 2, LW, bh - 4, 0, by + 2, LW, bh - 4);
   // the move's name on the free side
   const tx = R ? LW * .3 : LW * .7;
   if (t > 6) drawText('ULTIMATE!', tx, by + 16, 8, col, { shadow: '#000' });
-  if (t > 10) drawText(cut.name.toUpperCase(), tx, by + bh / 2 + 6, 8, '#fff', { scale: 2 * easeOutBack(Math.min(1, (t - 10) / 8)), shadow: col, maxW: LW * .55 });
+  if (t > 10) drawText(cut.name.toUpperCase(), tx, by + bh / 2 + 6, 8, '#fff', { scale: 2 * easeOutBack(Math.min(1, (t - 10) / 16)), shadow: col, maxW: LW * .55 });
   if (t < 3 && fxFlash()) { c.fillStyle = 'rgba(255,255,255,.7)'; c.fillRect(0, 0, LW, LH); }
 }

@@ -2,7 +2,8 @@ import { OUT } from '../core/constants.js';
 import { ctx } from './canvas.js';
 
 export let g = ctx; // drawing target for the shape helpers below
-export const setG = c => { g = c; }; // other modules switch the target through this (imports are read-only)
+// draw() runs with the shape helpers pointed at canvas context c; the previous target comes back even if draw() throws
+export function withTarget(c, draw) { const prev = g; g = c; try { draw(); } finally { g = prev; } }
 
 // ---------- shape helpers (cartoon fill + dark outline) ----------
 export const ow = () => g.ol || 3;

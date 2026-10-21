@@ -3,7 +3,6 @@ import { fxFlash } from '../core/settings.js';
 import { easeOutBack } from '../core/util.js';
 import { ctx } from '../render/canvas.js';
 import { drawFigure } from '../render/figures.js';
-import { setG } from '../render/shapes.js';
 import { drawText } from '../render/text.js';
 import { CHARS, PCOL, firstName } from '../game/roster.js';
 import { announce } from '../audio/announcer.js';
@@ -18,8 +17,8 @@ export function startVS() { vs = { t0: performance.now(), slam: false }; show('v
 export function renderVS() {
   const t = vsFrames(), c = ctx, boss = selMode === 'arcade' && arcade.order[arcade.stage].boss;
   if (t > 165) { startMatch(); return; }
-  if (t >= 18 && !vs.slam) { vs.slam = true; sfx('vs'); announce(`${CHARS[picks[0]].name.split(' ')[0]} versus ${boss ? 'shadow ' : ''}${CHARS[picks[1]].name.split(' ')[0]}!`); }
-  setG(ctx); c.setTransform(1, 0, 0, 1, 0, 0); c.imageSmoothingEnabled = false; c.globalAlpha = 1;
+  if (t >= 18 && !vs.slam) { vs.slam = true; sfx('vs'); announce(`${firstName(CHARS[picks[0]])} versus ${boss ? 'shadow ' : ''}${firstName(CHARS[picks[1]])}!`); }
+  c.setTransform(1, 0, 0, 1, 0, 0); c.imageSmoothingEnabled = false; c.globalAlpha = 1;
   c.fillStyle = '#1b4a73'; c.fillRect(0, 0, LW, LH);
   c.fillStyle = boss ? '#2a1446' : '#5a1028'; for (let y = 0; y < LH; y++) { const x = Math.round(LW / 2 + 24 - 48 * y / LH); c.fillRect(x, y, LW - x, 1); }
   for (let i = 0; i < 16; i++) { // speed lines, each side running toward the middle

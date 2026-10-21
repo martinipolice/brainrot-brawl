@@ -8,5 +8,5 @@ export const MAPS = [
 const has = (set, c) => Array.isArray(c) ? c.some(k => set.has(k)) : set.has(c);
 export const keyCtrl = m => () => ({ left: has(held, m.left), right: has(held, m.right), block: has(held, m.block),
   up: has(pressed, m.up), light: has(pressed, m.light), heavy: has(pressed, m.heavy), special: has(pressed, m.special), ult: has(pressed, m.ult) });
-export const GAME_KEYS = new Set(['ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown', 'Space', 'Slash', 'Comma', 'Period', 'Quote']);
+export const GAME_KEYS = new Set(['ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown', 'Space', 'Slash', 'Comma', 'Period']);
 export const CONFIRM = ['KeyJ', 'KeyF', 'Comma', 'Numpad1'];

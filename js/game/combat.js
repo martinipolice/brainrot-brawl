@@ -49,7 +49,7 @@ function applyHit(t, h, attacker) {
   }
   checkRage(t);
   if (t.hp <= 0) {
-    Object.assign(t, { hp: 0, state: 'ko', atk: null, stun: 0, vy: -9, vx: h.dir * 6 });
+    Object.assign(t, { hp: 0, state: 'ko', atk: null, stun: 0, vy: -9, vx: h.dir * 6, rot: 0, rotV: -(.05 + Math.min(h.kb, 10) * .003) }); // harder hits spin the body faster
     Object.assign(game, { stop: 22, slowT: 60, koZoom: 80, zx: t.x, zy: t.y - t.ch.h / 2, flash: 6 }); addTrauma('ko');
     burst(t.x, t.y - t.ch.h / 2, 34, { sp: [3, 13], g: .25, life: [20, 40], cols: ['#ffd23f', '#ff4f7b', '#3fb8ff', '#fff', '#ff8fc4'], sz: 3, floor: true });
     sfx('ko'); duck(.15, 1.2); muffle(1);

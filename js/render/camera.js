@@ -4,7 +4,8 @@ import { game } from '../core/state.js';
 
 // The battle camera sits 1.5x closer than the whole-stage view and follows the fighters (like Street Fighter), so they
 // read bigger against the HUD. CAMY puts the ground near the bottom; MAXSEP keeps both fighters on one screen.
-export const BASEZ = 1.5, BGS = BASEZ / PX, CAMY = 328, MAXSEP = W / BASEZ - 120;
+const BASEZ = 1.5;
+export const BGS = BASEZ / PX, CAMY = 328, MAXSEP = W / BASEZ - 120;
 // Battle camera rig, run once per fixed 60 Hz step after movement resolves (so it never trails the fighters by a frame).
 // Horizontal: frame both fighters plus any projectile in flight, never at the cost of losing a fighter; clamp to the stage
 // before smoothing so it eases into the edges; ignore small shuffles with a deadzone. Both axes follow a critically damped

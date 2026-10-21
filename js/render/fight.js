@@ -5,8 +5,8 @@ import { easeOutBack } from '../core/util.js';
 import { camera, toLo } from './camera.js';
 import { ctx, layCv, lay } from './canvas.js';
 import { drawHUD, drawBanner, drawCutscene } from './hud.js';
-import { pixelize } from './pixel.js';
-import { g, setG, E, P, S } from './shapes.js';
+import { pixelize, tint, SHADOW_TINT } from './pixel.js';
+import { g, withTarget, E, P, S } from './shapes.js';
 import { bgc } from './stage.js';
 import { drawText } from './text.js';
 import { pool } from '../game/effects.js';
@@ -26,7 +26,7 @@ function drawBody(f) {
   if (game.stop > 0 && f.jit) dx = game.stop % 2 ? 6 : -6; // shudder while frozen in hitstop
   if ((game.phase === 'roundEnd' || game.phase === 'matchEnd') && game.winner === f.i && game.phaseT > 90) dy = -Math.abs(Math.sin(game.phaseT * .15)) * 24;
   g.save(); g.translate(f.x + dx, f.y + dy); g.scale(f.face, 1);
-  if (f.state === 'ko') { const k = Math.min(1, f.koT / 18); g.translate(0, -f.ch.koLift * k); g.rotate(-k * Math.PI / 2); } // falls back and lies on the sand, not in it
+  if (f.state === 'ko') { g.translate(0, -f.ch.koLift * Math.min(1, Math.abs(Math.sin(f.rot)))); g.rotate(f.rot); } // lifted as it tips, so it lies on the sand, not in it
   else if (f.state === 'hit') g.rotate(-.16);
   g.scale(1 + f.sq, 1 - f.sq);
   f.ch.draw(p);
@@ -53,11 +53,11 @@ function drawActor(f, cam) {
   if (bw <= 0 || bh <= 0) return;
   lay.setTransform(1, 0, 0, 1, 0, 0); lay.clearRect(bx, by, bw, bh);
   lay.setTransform(s, 0, 0, s, cam.ox, cam.oy);
-  lay.ol = 1.1 / s; setG(lay); drawBody(f); setG(ctx);
+  lay.ol = 1.1 / s; withTarget(lay, () => drawBody(f));
   lay.setTransform(1, 0, 0, 1, 0, 0);
   pixelize(lay, bx, by, bw, bh);
-  if (f.shadow || f.flash > 2) { lay.globalCompositeOperation = 'source-atop'; lay.fillStyle = f.flash > 2 ? '#fff' : 'rgba(40,0,70,.6)'; lay.fillRect(bx, by, bw, bh); lay.globalCompositeOperation = 'source-over'; }
-  if (f.rage && f.flash <= 2) { lay.globalCompositeOperation = 'source-atop'; lay.fillStyle = `rgba(255,40,60,${(.14 + .12 * Math.sin(tick * .3)).toFixed(3)})`; lay.fillRect(bx, by, bw, bh); lay.globalCompositeOperation = 'source-over'; }
+  if (f.shadow || f.flash > 2) tint(lay, f.flash > 2 ? '#fff' : SHADOW_TINT, bx, by, bw, bh);
+  if (f.rage && f.flash <= 2) tint(lay, `rgba(255,40,60,${(.14 + .12 * Math.sin(tick * .3)).toFixed(3)})`, bx, by, bw, bh);
   // afterimages on dashes and big knockback
   if (!paused && game.stop === 0 && tick % 3 === 0 && Math.abs(f.vx) > 3.5 && (f.atk || f.state === 'hit' || f.state === 'ko')) {
     const c = pool.pop() || document.createElement('canvas'); c.width = bw; c.height = bh;
@@ -111,7 +111,7 @@ function drawAmbient(cam) {
 
 export function renderFight() {
   const cam = camera(), c = ctx;
-  setG(ctx); c.setTransform(1, 0, 0, 1, 0, 0); c.imageSmoothingEnabled = false; c.globalAlpha = 1;
+  c.setTransform(1, 0, 0, 1, 0, 0); c.imageSmoothingEnabled = false; c.globalAlpha = 1;
   c.fillStyle = OUT; c.fillRect(0, 0, LW, LH);
   c.drawImage(bgc, cam.ox, cam.oy, Math.round(bgc.width * (1 + game.zp)), Math.round(bgc.height * (1 + game.zp)));
   drawAmbient(cam);
@@ -130,7 +130,7 @@ export function renderFight() {
     const bw = Math.min(LW, Math.ceil(wx1 * cam.s + cam.ox) + 1) - bx, bh = Math.min(LH, Math.ceil(wy1 * cam.s + cam.oy) + 1) - by;
     if (bw > 0 && bh > 0) {
       lay.setTransform(1, 0, 0, 1, 0, 0); lay.clearRect(bx, by, bw, bh); lay.setTransform(cam.s, 0, 0, cam.s, cam.ox, cam.oy);
-      lay.ol = 1.1 / cam.s; setG(lay); game.proj.forEach(drawProj); game.fx.forEach(drawFx); setG(ctx);
+      lay.ol = 1.1 / cam.s; withTarget(lay, () => { game.proj.forEach(drawProj); game.fx.forEach(drawFx); });
       lay.setTransform(1, 0, 0, 1, 0, 0); pixelize(lay, bx, by, bw, bh); c.drawImage(layCv, bx, by, bw, bh, bx, by, bw, bh);
     }
   }

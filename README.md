@@ -1,6 +1,6 @@
 # Martini's Brainrot Brawl
 
-A game by **martinipolice**. Current version: **v1.5.0** (shown under the game screen).
+A game by **martinipolice**. Current version: **v1.6.0** (shown under the game screen).
 
 A Street Fighter-style 1v1 pixel-art browser fighter starring Italian brainrot memes. It's plain HTML, CSS and JavaScript modules, with no build step and no dependencies.
 
@@ -36,7 +36,7 @@ Esc pauses (the pause menu has the move list), M mutes and C switches the CRT fi
 
 ## How a fight works
 - **SP gauge (special):** you start each round with one special ready. After that, landing a light attack charges the gauge by 25% and a heavy by 40% (blocked hits count half). A full gauge lets you use your special.
-- **SUPER meter (ultimate):** fills as you deal damage, and a little when you take it. When it's full, press Heavy + Special together (↓ → + Special also works). The fight freezes for a cut-in cutscene, then the ultimate plays out.
+- **SUPER meter (ultimate):** fills as you deal damage, and a little when you take it. When it's full, press Heavy + Special together (↓ → + Special also works). The fight freezes for a slow-motion cut-in, and the ultimate opens in slow motion before playing out at full speed.
 - **Rage:** when a fighter drops below 30% health, they turn red, hit 10% harder for the rest of the round, and their SUPER fills once: a comeback ultimate.
 
 Every fighter also has these moves (written for facing right):
@@ -75,7 +75,7 @@ Hits score 100 points per point of damage, plus a bonus for combos. The round wi
 ## Look and feel
 The arena draws at 320×180. In battle the camera sits 1.5× closer than the whole stage and follows the fight on a smooth spring: it frames both fighters and any projectile in flight, ignores small shuffles, eases into the stage edges, and rises during jumps only as far as it can without losing the ground. Both fighters always stay on screen. The zoom stays fixed so the pixel art never shimmers. Every sprite is snapped to a fixed palette with hard edges and scaled up with no smoothing, and the background uses dithered gradients.
 
-When a hit lands, the game freezes briefly (hitstop) and the defender shudders. Sparks scatter and bounce off the sand, a heavy hit zooms the camera and pops a brainrot word (TUNG!, KABOOM!), and the health bar shakes. A KO adds slow motion, a camera zoom on the loser, a screen flash, a confetti burst and the body bouncing on the ground. Fighters squash and stretch on jumps, landings and hits, knockback leaves afterimages, and stunned fighters splat against the walls. Screen shake builds up from impacts and settles smoothly: a light hit nudges the screen by about a pixel, a KO by about five, and quick combos stack. Turning on the OS reduced-motion setting starts the Shake & flash option at Reduced and tones down the zoom.
+When a hit lands, the game freezes briefly (hitstop) and the defender shudders. Sparks scatter and bounce off the sand, a heavy hit zooms the camera and pops a brainrot word (TUNG!, KABOOM!), and the health bar shakes. A KO adds slow motion, a camera zoom on the loser, a screen flash and a confetti burst. The loser's body keeps the spin of the blow: it tumbles through the air, bounces, and rocks to rest flat on the sand, and a body knocked into a wall bounces off it spinning back. Fighters squash and stretch on jumps, landings and hits, knockback leaves afterimages, and stunned fighters splat against the walls. Screen shake builds up from impacts and settles smoothly: a light hit nudges the screen by about a pixel, a KO by about five, and quick combos stack. Turning on the OS reduced-motion setting starts the Shake & flash option at Reduced and tones down the zoom.
 
 ## Project structure
 `index.html` holds the page layout and the screen containers. It links the stylesheets and loads `js/main.js` as an ES module, which imports everything else.
@@ -93,12 +93,13 @@ When a hit lands, the game freezes briefly (hitstop) and the defender shudders. 
 | `js/ui/` | Screens: title and options, character select, VS splash, ending, menus, screen switching and match flow |
 | `js/tests/selftest.js` | The self-check |
 
-Shared mutable values (the current match, which screen is showing, the drawing target and so on) live in the module that owns them. Other modules read them through imports and change them through that module's setters, such as `setGame()`, because an imported binding is read-only.
+Shared mutable values (the current match, which screen is showing and so on) live in the module that owns them. Other modules read them through imports and change them through that module's setters, such as `setGame()`, because an imported binding is read-only. The shape helpers draw into one target at a time; `withTarget(canvas, draw)` points them at another canvas for the length of `draw` and always switches back.
 
 ## Self-check
 Serve the folder as above and open `index.html#selftest`, or run `selfTest()` in the console. It runs 19 checks, including hits and blocking, guarding by holding back, the L, L, H chain, dashing, the SP gauge, rage, all three ultimate inputs (and that they need a full meter), KOs and the score bonuses.
 
 ## Changelog
+- **v1.6.0:** Slow-motion ultimate cut-in that opens the move in slow motion; knocked-out fighters tumble, bounce and settle on the sand with physics instead of a fixed fall; keys used in the pause menu no longer make fighters attack or jump on resume; holding M no longer flickers mute; the code is split into CSS files and JavaScript modules.
 - **v1.5.0:** Redrawn fighters closer to the source memes (torpedo-shaped Tralalero, Tung's carved drum slit and grin, a green crocodile-bodied Bombardiro, Ballerina's pointe-shoe ribbons and layered tutu); a closer battle camera that follows the fight on a smooth spring with a deadzone, frames projectiles, and keeps the ground in view during jumps, so the fighters are about 50% bigger on screen; slimmer HUD; knocked-out fighters now lie on the sand instead of sinking into it; centred title menu and character select; header is just the title; touch controls fit phones down to 320px; faster palette lookup; Ballerina 104 HP; new battle theme that builds with the fight, per-fighter hit sounds, a louder and cleaner mix, and a Japanese-accented arcade announcer with more lines.
 - **v1.4.0:** Martini's title and logo, a cleaner title card (logo and menu only), a cleaner character select (name and SPD/POW/HP bars), SP gauge charged by hits, Heavy + Special ultimate, rage mode, new sound mix (effects and music volumes, title theme, adaptive drums, ducking, announcer), compact controls card, version label, rebalance.
 - **v1.3.0:** Arcade ladder with a shadow boss and ending, CPU difficulty levels, J/K/L controls, dashes and combos, SUPER meter and ultimates with cutscenes, higher jumps, title logo and menus.

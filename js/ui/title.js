@@ -42,7 +42,7 @@ export function cycleOpt(name, dir, wrap = false) {
     opts[k] = wrap ? (opts[k] + 1) % 11 : Math.max(0, Math.min(10, opts[k] + dir));
     applyVolumes();
   }
-  if (name === 'announcer') { const k = ['JP', 'EN', 'OFF']; opts.announcer = k[(k.indexOf(opts.announcer) + dir + k.length) % k.length]; saveOpts(); announce('announcer on!'); }
+  if (name === 'announcer') { const k = ['JP', 'EN', 'OFF']; opts.announcer = k[(k.indexOf(opts.announcer) + dir + k.length) % k.length]; announce('announcer on!'); }
   if (name === 'crt') setCRT(!crtOn);
   if (name === 'fx') { const k = ['FULL', 'REDUCED', 'OFF']; opts.fx = k[(k.indexOf(opts.fx) + dir + k.length) % k.length]; }
   saveOpts(); syncOpts(); sfx(name === 'sfx' ? 'hit' : 'hover');

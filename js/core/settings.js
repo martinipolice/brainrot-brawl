@@ -1,7 +1,7 @@
 import { RM } from './constants.js';
 
 // ---------- saved settings (per browser, optional) ----------
-export const VERSION = '1.5.0';
+export const VERSION = '1.6.0';
 export const HIKEY = 'brainrot-brawl-hi', CRTKEY = 'brainrot-brawl-crt';
 export const load = k => { try { return localStorage.getItem(k); } catch (e) { return null; } };
 export const save = (k, v) => { try { localStorage.setItem(k, v); } catch (e) { } };

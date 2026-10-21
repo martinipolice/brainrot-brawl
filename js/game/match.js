@@ -5,6 +5,7 @@ import { CAMY } from '../render/camera.js';
 import { checkMelee, updateProj, keepOnScreen, separate } from './combat.js';
 import { addTrauma, pool } from './effects.js';
 import { updateFighter } from './fighter.js';
+import { firstName } from './roster.js';
 import { announce } from '../audio/announcer.js';
 import { setMStep } from '../audio/music.js';
 import { sfx } from '../audio/sfx.js';
@@ -14,7 +15,7 @@ import { selMode, showResult } from '../ui/flow.js';
 // A match: fighters, rounds, the fixed 60 Hz simulation step, and how rounds and matches end.
 function makeFighter(ch, i) {
   return { ch, i, x: i ? W - 300 : 300, y: GROUND, vx: 0, vy: 0, face: i ? -1 : 1, hp: ch.hp, ghost: ch.hp, state: 'idle',
-    atk: null, atkName: '', atkT: 0, hitN: 0, lastHitT: -99, stun: 0, sp: 100, buf: {}, T: 0, flash: 0, koT: 0, combo: 0, comboN: 0, comboShow: 0, wins: 0, ai: { hold: 0, keys: {} },
+    atk: null, atkName: '', atkT: 0, hitN: 0, lastHitT: -99, stun: 0, sp: 100, buf: {}, T: 0, flash: 0, rot: 0, rotV: 0, combo: 0, comboN: 0, comboShow: 0, wins: 0, ai: { hold: 0, keys: {} },
     sq: 0, sqv: 0, jit: 0, barShake: 0, hitFlash: 0, glint: 0, comboPop: 0,
     meter: 0, rage: false, hist: [], prev: { fwd: false, back: false, down: false }, backHeld: false, dashT: 0, chain: 0, shadow: false };
 }
@@ -49,7 +50,7 @@ function endRound() {
 }
 
 export function step() {
-  if (game.cut) { if (++game.cut.T >= game.cut.len) game.cut = null; return; } // ultimate cut-in: the fight is frozen
+  if (game.cut) { if (++game.cut.T >= game.cut.len) { game.cut = null; game.slowT = 24; } return; } // ultimate cut-in: the fight is frozen, then the move opens in slow motion
   if (game.stop > 0) { game.stop--; return; } // hitstop: keep presses queued
   game.p.forEach(f => f.jit = 0);
   if (game.slowT > 0) { game.slowT--; if (game.slowT % 3) return; } // KO slow motion
@@ -75,7 +76,7 @@ export function step() {
     const b = game.bonus;
     if (game.phaseT === 1) announce({ 'K.O.': 'ko!', 'DOUBLE K.O.': 'double ko!', 'TIME OVER': 'time over!' }[game.msg]);
     if (game.phaseT === 32 && game.perfect) announce('perfect!');
-    if (game.phaseT === 80) announce(game.winner < 0 ? 'draw!' : `${game.p[game.winner].shadow ? 'shadow ' : ''}${game.p[game.winner].ch.name.split(' ')[0]} wins!`);
+    if (game.phaseT === 80) announce(game.winner < 0 ? 'draw!' : `${game.p[game.winner].shadow ? 'shadow ' : ''}${firstName(game.p[game.winner].ch)} wins!`);
     if (b && game.phaseT === 80) game.score[game.winner] += b.time + b.vital + b.perfect;
     if (b && (game.phaseT === 92 || game.phaseT === 104 || (game.phaseT === 116 && b.perfect))) sfx('tick');
     if (game.phaseT >= 170) {

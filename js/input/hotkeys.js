@@ -16,7 +16,7 @@ export function bindKeys() {
   addEventListener('keydown', e => {
     audio();
     const u = ui, overlay = u === 'fight' && (paused || !$('pResult').hidden);
-    if (e.code === 'KeyM') { setMuted(!muted); opts.muted = muted; saveOpts(); applyVolumes(); if (muted && 'speechSynthesis' in window) speechSynthesis.cancel(); }
+    if (e.code === 'KeyM' && !e.repeat) { setMuted(!muted); opts.muted = muted; saveOpts(); applyVolumes(); if (muted && 'speechSynthesis' in window) speechSynthesis.cancel(); }
     if (e.code === 'KeyC' && !e.repeat) setCRT(!crtOn);
     if (u === 'fight' && GAME_KEYS.has(e.code) && !(e.target instanceof HTMLButtonElement && (e.code === 'Space'))) e.preventDefault();
     if (u === 'fight' && e.code === 'Escape' && game && game.phase !== 'matchEnd') togglePause();
@@ -31,7 +31,7 @@ export function bindKeys() {
       else if (u === 'ending') { if (!['KeyM', 'KeyC', 'Tab', 'ShiftLeft', 'ShiftRight'].includes(e.code)) endEnding(); }
       else if (overlay) menuNav(e);
     }
-    if (!e.repeat) pressed.add(e.code);
+    if (!e.repeat && !overlay) pressed.add(e.code); // keys used in the pause or result menu never reach the fight
     held.add(e.code);
   });
   addEventListener('keyup', e => held.delete(e.code));

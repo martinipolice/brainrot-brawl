@@ -36,3 +36,8 @@ export function pixelize(c, x, y, w, h, dither = false) {
   }
   c.putImageData(id, x, y);
 }
+// Recolour what is already drawn in a box (alpha kept): hit flashes, rage glow, the shadow boss.
+export const SHADOW_TINT = 'rgba(40,0,70,.6)';
+export function tint(c, color, x, y, w, h) {
+  c.globalCompositeOperation = 'source-atop'; c.fillStyle = color; c.fillRect(x, y, w, h); c.globalCompositeOperation = 'source-over';
+}

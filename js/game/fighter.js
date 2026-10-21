@@ -21,8 +21,8 @@ function startAtk(f, name, cancel = false) {
 function startUlt(f) {
   f.meter = 0; f.buf.special = 0; f.buf.ult = 0; f.hist.length = 0;
   startAtk(f, 'ult');
-  game.cut = { who: f.i, T: 0, len: 80, name: f.ch.moves.ult.name };
-  game.stop = 0; sfx('ult'); duck(.2, 1.3);
+  game.cut = { who: f.i, T: 0, len: 120, name: f.ch.moves.ult.name };
+  game.stop = 0; sfx('ult'); duck(.2, 2);
 }
 // down then forward (relative to facing) within 15 frames, with the forward no more than 12 frames ago
 const motionQCF = f => {
@@ -36,9 +36,16 @@ const motionQCF = f => {
 // the same direction pressed twice within 12 frames, the second press this frame
 const doubleTap = (f, d) => { const h = f.hist, n = h.length; return n >= 2 && h[n - 1].d === d && h[n - 1].t === f.T && h[n - 2].d === d && h[n - 1].t - h[n - 2].t <= 12; };
 
+// A knocked-out body keeps the spin of the blow while airborne (rot 0 = upright, -PI/2 = flat on its back). On the sand a
+// damped spring settles it flat, so an over-rotated body rocks back. Each bounce bleeds spin off (see land).
+function tumble(f, ground) {
+  if (ground && f.vy >= 0) f.rotV = f.rotV * .7 + (-Math.PI / 2 - f.rot) * .18;
+  f.rot += f.rotV;
+}
+
 function land(f, impact) {
   if (f.state === 'ko' && impact > 4) { // KO'd bodies bounce
-    f.vy = -impact * .45; dust(f.x, 10, 3.5); addTrauma('small'); sfx('wall'); return;
+    f.vy = -impact * .45; f.rotV *= .5; dust(f.x, 10, 3.5); addTrauma('small'); sfx('wall'); return;
   }
   f.vy = 0; f.sq = Math.min(.32, impact * .025); f.sqv = 0;
   if (impact > 3) { dust(f.x, 6); sfx('land'); }
@@ -55,7 +62,7 @@ export function updateFighter(f, foe, inp) {
   const ground = f.y >= GROUND, take = k => f.buf[k] > 0 ? (f.buf[k] = 0, true) : false;
   const wantUlt = () => f.meter >= 100 && (f.buf.ult > 0 || (f.buf.special > 0 && (f.buf.heavy > 0 || motionQCF(f))));
   const heavyFor = () => fwdH ? 'rush' : backH ? 'rise' : 'heavy';
-  if (f.state === 'ko') f.koT++;
+  if (f.state === 'ko') tumble(f, ground);
   else if (f.stun > 0) { if (--f.stun === 0) { f.state = ground ? 'idle' : 'jump'; f.combo = 0; } }
   else if (f.atk) {
     const m = f.atk, a0 = m.startup, a1 = a0 + m.active;
@@ -111,7 +118,7 @@ export function updateFighter(f, foe, inp) {
   const nx = Math.max(40, Math.min(W - 40, f.x));
   if (nx !== f.x && (f.stun > 0 || f.state === 'ko') && Math.abs(f.vx) > 3) { // wall splat
     burst(nx + Math.sign(f.vx) * 8, f.y - f.ch.h / 2, 8, { ang: f.vx > 0 ? Math.PI : 0, spread: 1.8, sp: [1, 4], g: .15, life: [12, 22], cols: SAND, sz: 2 });
-    f.vx = -f.vx * .5; addTrauma('small'); sfx('wall');
+    f.vx = -f.vx * .5; f.rotV *= -.5; addTrauma('small'); sfx('wall'); // a tumbling body bounces off the wall spinning back
   }
   f.x = nx;
   if (f.y >= GROUND && f.state === 'walk' && f.T % 14 === 0) { dust(f.x - f.face * 14, 2, 1.2); sfx('step'); }
