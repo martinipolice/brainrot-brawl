@@ -1,0 +1,22 @@
+/* cabinet */
+.cabinet{background:linear-gradient(var(--cab2),var(--cab));border:4px solid #000;box-shadow:0 0 0 4px var(--line),10px 10px 0 4px #000;padding:clamp(8px,1.6vw,16px);display:grid;gap:12px}
+.marquee{text-align:center;padding:12px 24px;border:4px solid #000;display:grid;gap:6px;justify-items:center;
+  background:linear-gradient(90deg,var(--hot) 0 8px,var(--accent) 8px 16px,#120a1f 16px calc(100% - 16px),var(--accent) calc(100% - 16px) calc(100% - 8px),var(--hot) calc(100% - 8px))}
+.logo{font-family:var(--display);font-weight:400;font-size:clamp(18px,4.4vw,40px);line-height:1.2;margin:0;color:var(--accent);text-transform:uppercase;text-shadow:3px 3px 0 var(--hot),6px 6px 0 #000}
+.logo span{color:var(--fg)}
+.logo small{display:block;font-size:.42em;color:var(--p1);text-shadow:2px 2px 0 #000;margin-bottom:8px}
+.bezel{background:#0a0710;padding:clamp(8px,2vw,20px);border-radius:18px;box-shadow:inset 0 0 0 3px #000,inset 0 0 0 6px #2b2140;display:grid;gap:10px}
+.crt{position:relative;border-radius:12px;overflow:hidden;background:#000}
+.crt::after{content:'';position:absolute;inset:0;pointer-events:none;z-index:5;
+  background:radial-gradient(ellipse at center,transparent 62%,rgba(0,0,0,.5) 100%),repeating-linear-gradient(transparent 0 2px,rgba(0,0,0,.16) 2px 3px)}
+.crt.off{border-radius:0}.crt.off::after{display:none}
+.fade{position:absolute;inset:0;z-index:4;background:#000;pointer-events:none;opacity:0}
+.fade.go{animation:fadeout .32s steps(4)}
+@keyframes fadeout{from{opacity:1}to{opacity:0}}
+.bezel-foot{display:flex;flex-wrap:wrap;align-items:center;gap:4px 10px;font-family:var(--display);font-size:8px;color:var(--muted);text-transform:uppercase}
+.gh{display:inline-flex;align-items:center;gap:6px;min-height:44px;padding:0 8px;color:var(--fg);text-decoration:none}
+.gh svg{width:16px;height:16px;fill:currentColor;flex:none}
+.gh:hover{color:var(--accent)}
+.gh:focus-visible{outline:2px solid var(--p1);outline-offset:2px}
+.led{width:8px;height:8px;background:#5dff7a;box-shadow:0 0 6px #5dff7a}
+.bezel-foot .grow{flex:1}

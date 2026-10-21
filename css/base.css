@@ -1,0 +1,18 @@
+/* Layout: an arcade cabinet. Marquee on top, then a bezel holding the CRT (title, select, VS and fight all play inside it),
+   then the touch pad and the instruction card below the cabinet. */
+:root{
+  --bg:#0c0814; --cab:#1d1230; --cab2:#2a1a45; --panel:#231a30; --line:#3b2d4f; --fg:#f7efe3; --muted:#bba9cc;
+  --accent:#ffd23f; --hot:#ff4f7b; --p1:#3fb8ff; --p2:#ff7a3d; --ink:#1a1024;
+  --display:'Press Start 2P', 'Courier New', monospace;
+  --body:'Pixelify Sans', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  color-scheme:dark;
+}
+[hidden]{display:none!important}
+html,body{background:var(--bg);color:var(--fg)}
+html{height:100%}
+/* the body fills the window even when the page is shorter, so the dot pattern reaches the bottom edge */
+body{box-sizing:border-box;min-height:100%;font-family:var(--body);font-size:16px;line-height:1.5;margin:0;
+  background-image:radial-gradient(#1d1430 1px,transparent 1px);background-size:8px 8px;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:14px 32px}
+.wrap{width:100%;max-width:max(600px,min(1100px,calc((100dvh - 230px) * 16 / 9)));margin:0 auto;display:grid;gap:16px}
+canvas{image-rendering:pixelated;image-rendering:crisp-edges}

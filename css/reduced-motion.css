@@ -1,0 +1,5 @@
+@media (prefers-reduced-motion:reduce){
+  .btn,.btn:hover,.btn:active{transition:none;transform:none}
+  .press,.portrait i,.side.locked h3,.seltime.low b,.ressub .hi,.mi:hover::before,.mi:focus::before,.mi.cur::before{animation:none}
+  .fade.go{animation:none}
+}

@@ -2,11 +2,17 @@
 
 A game by **martinipolice**. Current version: **v1.5.0** (shown under the game screen).
 
-A Street Fighter-style 1v1 pixel-art browser fighter starring Italian brainrot memes. It's one HTML file with no build step and no dependencies.
+A Street Fighter-style 1v1 pixel-art browser fighter starring Italian brainrot memes. It's plain HTML, CSS and JavaScript modules, with no build step and no dependencies.
 
 **Play online:** https://martinipolice.github.io/brainrot-brawl/
 
-You can also open `index.html` in a browser to play offline. The live site is deployed with GitHub Pages from the `main` branch, so every push to `main` updates it.
+The live site is deployed with GitHub Pages from the `main` branch, so every push to `main` updates it.
+
+To play offline, serve the folder with any static web server and open it in a browser. Opening `index.html` straight from disk won't work, because browsers only load JavaScript modules over HTTP. With Python installed, run this in the project folder, then open http://localhost:8000:
+
+```bash
+python -m http.server 8000
+```
 
 ## Modes
 The title screen opens with PRESS START, then a menu:
@@ -71,8 +77,26 @@ The arena draws at 320×180. In battle the camera sits 1.5× closer than the who
 
 When a hit lands, the game freezes briefly (hitstop) and the defender shudders. Sparks scatter and bounce off the sand, a heavy hit zooms the camera and pops a brainrot word (TUNG!, KABOOM!), and the health bar shakes. A KO adds slow motion, a camera zoom on the loser, a screen flash, a confetti burst and the body bouncing on the ground. Fighters squash and stretch on jumps, landings and hits, knockback leaves afterimages, and stunned fighters splat against the walls. Screen shake builds up from impacts and settles smoothly: a light hit nudges the screen by about a pixel, a KO by about five, and quick combos stack. Turning on the OS reduced-motion setting starts the Shake & flash option at Reduced and tones down the zoom.
 
+## Project structure
+`index.html` holds the page layout and the screen containers. It links the stylesheets and loads `js/main.js` as an ES module, which imports everything else.
+
+| Path | What's in it |
+|---|---|
+| `css/` | Styles, one file per part of the page, linked in cascade order: base, cabinet, components, title, select, fight, controls, reduced motion |
+| `js/main.js` | Entry point: paints the stage, wires up the page, runs the fixed 60 Hz game loop |
+| `js/core/` | Constants, saved settings, shared game state, small helpers |
+| `js/render/` | Canvas and offscreen layer, shape helpers, pixel pass, pixel text, camera, stage, fight scene, HUD, fighter previews |
+| `js/game/` | Fighters' art, roster, match and round flow, the per-tick fighter update, combat and projectiles, effects |
+| `js/audio/` | Mixer, sound effects, announcer, music |
+| `js/input/` | Key maps, global keys and screen routing, touch pad |
+| `js/ai/cpu.js` | CPU opponent |
+| `js/ui/` | Screens: title and options, character select, VS splash, ending, menus, screen switching and match flow |
+| `js/tests/selftest.js` | The self-check |
+
+Shared mutable values (the current match, which screen is showing, the drawing target and so on) live in the module that owns them. Other modules read them through imports and change them through that module's setters, such as `setGame()`, because an imported binding is read-only.
+
 ## Self-check
-Open `index.html#selftest`, or run `selfTest()` in the console. It runs 19 checks, including hits and blocking, guarding by holding back, the L, L, H chain, dashing, the SP gauge, rage, all three ultimate inputs (and that they need a full meter), KOs and the score bonuses.
+Serve the folder as above and open `index.html#selftest`, or run `selfTest()` in the console. It runs 19 checks, including hits and blocking, guarding by holding back, the L, L, H chain, dashing, the SP gauge, rage, all three ultimate inputs (and that they need a full meter), KOs and the score bonuses.
 
 ## Changelog
 - **v1.5.0:** Redrawn fighters closer to the source memes (torpedo-shaped Tralalero, Tung's carved drum slit and grin, a green crocodile-bodied Bombardiro, Ballerina's pointe-shoe ribbons and layered tutu); a closer battle camera that follows the fight on a smooth spring with a deadzone, frames projectiles, and keeps the ground in view during jumps, so the fighters are about 50% bigger on screen; slimmer HUD; knocked-out fighters now lie on the sand instead of sinking into it; centred title menu and character select; header is just the title; touch controls fit phones down to 320px; faster palette lookup; Ballerina 104 HP; new battle theme that builds with the fight, per-fighter hit sounds, a louder and cleaner mix, and a Japanese-accented arcade announcer with more lines.

@@ -1,0 +1,14 @@
+/* shared retro bits */
+.screen{width:100%;aspect-ratio:16/9;box-sizing:border-box}
+@keyframes blink{50%{opacity:0}}
+@keyframes nudge{50%{transform:translate(3px,-50%)}}
+.menu{display:grid;gap:8px;justify-items:start}
+.mi{all:unset;box-sizing:border-box;cursor:pointer;position:relative;font-family:var(--display);font-size:clamp(10px,1.5vw,14px);line-height:1.4;text-transform:uppercase;color:var(--fg);padding:6px 10px 6px 28px;text-shadow:2px 2px 0 #000}
+.mi::before{content:'';position:absolute;left:6px;top:50%;transform:translateY(-50%);border-left:12px solid var(--accent);border-top:7px solid transparent;border-bottom:7px solid transparent;visibility:hidden}
+.mi:hover,.mi:focus,.mi.cur{color:var(--accent)}
+.mi:hover::before,.mi:focus::before,.mi.cur::before{visibility:visible;animation:nudge .5s steps(2) infinite}
+.mi:focus-visible{outline:2px dashed var(--accent);outline-offset:2px}
+.btn{font-family:var(--display);font-size:10px;line-height:1.4;text-transform:uppercase;padding:10px 12px;min-height:44px;border:3px solid var(--fg);border-radius:0;background:var(--panel);color:var(--fg);cursor:pointer;box-shadow:4px 4px 0 #000;transition:transform .08s steps(2),box-shadow .08s steps(2)}
+.btn:hover{transform:translate(-2px,-2px);box-shadow:6px 6px 0 #000}
+.btn:active{transform:translate(4px,4px);box-shadow:none}
+.btn:focus-visible,.portrait:focus-visible,.pad button:focus-visible,.press:focus-visible{outline:3px solid var(--p1);outline-offset:3px}
