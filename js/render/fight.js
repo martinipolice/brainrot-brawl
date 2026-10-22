@@ -1,9 +1,9 @@
-import { GROUND, OUT, LW, LH } from '../core/constants.js';
+import { GROUND, OUT, LW } from '../core/constants.js';
 import { fxFlash } from '../core/settings.js';
 import { game, paused, tick } from '../core/state.js';
 import { easeOutBack } from '../core/util.js';
 import { camera, toLo } from './camera.js';
-import { ctx, layCv, lay } from './canvas.js';
+import { ctx, layCv, lay, VH } from './canvas.js';
 import { drawHUD, drawBanner, drawCutscene } from './hud.js';
 import { pixelize, tint, SHADOW_TINT } from './pixel.js';
 import { g, withTarget, E, P, S } from './shapes.js';
@@ -13,7 +13,7 @@ import { pool } from '../game/effects.js';
 import { PCOL } from '../game/roster.js';
 import { STAGES } from '../stages/index.js';
 
-// ---------- rendering (all at 320x180) ----------
+// ---------- rendering (320 wide, VH tall: 180, or 240 for the portrait phone arena) ----------
 // The fight scene: fighters through the pixel pass, shadows, afterimages, projectiles, effects and particles.
 function pose(f) {
   let s = f.state, ph = 0;
@@ -50,7 +50,7 @@ function drawShadow(f, cam) {
 function drawActor(f, cam) {
   // box around the fighter that fits every pose: bat swings, ultimates, raised arms, a KO'd body lying flat, victory hops
   const s = cam.s, x0 = Math.floor((f.x - 170) * s + cam.ox), y0 = Math.floor((f.y - 200) * s + cam.oy);
-  const bx = Math.max(0, x0), by = Math.max(0, y0), bw = Math.min(LW, x0 + Math.ceil(340 * s) + 2) - bx, bh = Math.min(LH, y0 + Math.ceil(220 * s) + 2) - by;
+  const bx = Math.max(0, x0), by = Math.max(0, y0), bw = Math.min(LW, x0 + Math.ceil(340 * s) + 2) - bx, bh = Math.min(VH, y0 + Math.ceil(220 * s) + 2) - by;
   if (bw <= 0 || bh <= 0) return;
   lay.setTransform(1, 0, 0, 1, 0, 0); lay.clearRect(bx, by, bw, bh);
   lay.setTransform(s, 0, 0, s, cam.ox, cam.oy);
@@ -100,7 +100,7 @@ function drawFx(e) {
 // draw() in world space onto the layer, pixelize just the screen box covering world box x0..x1, y0..y1, copy it over
 function drawPixelized(cam, wx0, wy0, wx1, wy1, draw) {
   const bx = Math.max(0, Math.floor(wx0 * cam.s + cam.ox)), by = Math.max(0, Math.floor(wy0 * cam.s + cam.oy));
-  const bw = Math.min(LW, Math.ceil(wx1 * cam.s + cam.ox) + 1) - bx, bh = Math.min(LH, Math.ceil(wy1 * cam.s + cam.oy) + 1) - by;
+  const bw = Math.min(LW, Math.ceil(wx1 * cam.s + cam.ox) + 1) - bx, bh = Math.min(VH, Math.ceil(wy1 * cam.s + cam.oy) + 1) - by;
   if (bw <= 0 || bh <= 0) return;
   lay.setTransform(1, 0, 0, 1, 0, 0); lay.clearRect(bx, by, bw, bh); lay.setTransform(cam.s, 0, 0, cam.s, cam.ox, cam.oy);
   lay.ol = 1.1 / cam.s; withTarget(lay, draw);
@@ -110,7 +110,7 @@ function drawPixelized(cam, wx0, wy0, wx1, wy1, draw) {
 export function renderFight() {
   const cam = camera(), c = ctx, stage = game.stage || (game.stage = { def: STAGES[0], st: {} }), sd = stage.def, bg = stageCanvas(sd);
   c.setTransform(1, 0, 0, 1, 0, 0); c.imageSmoothingEnabled = false; c.globalAlpha = 1;
-  c.fillStyle = OUT; c.fillRect(0, 0, LW, LH);
+  c.fillStyle = OUT; c.fillRect(0, 0, LW, VH);
   c.drawImage(bg, cam.ox, cam.oy, Math.round(bg.width * (1 + game.zp)), Math.round(bg.height * (1 + game.zp)));
   if (sd.ambient) sd.ambient(c, cam, stage.st, tick);
   if (sd.props) sd.boxes.forEach((b, i) => drawPixelized(cam, ...b, () => sd.props(stage.st, i, tick)));
@@ -136,8 +136,8 @@ export function renderFight() {
     const [x, y] = toLo(cam, p.x, p.y - p.T * 1.2);
     drawText(p.s, x, y, 8, p.c, { scale: 2 * easeOutBack(Math.min(1, p.T / 8)), shadow: '#ff4f7b', clamp: true });
   }
-  if (game.rageFlash > 0 && fxFlash()) { c.fillStyle = 'rgba(255,40,60,.22)'; c.fillRect(0, 0, LW, LH); }
-  if (game.flash > 0 && fxFlash()) { c.fillStyle = game.flash % 2 ? '#fff' : 'rgba(255,255,255,.5)'; c.fillRect(0, 0, LW, LH); }
+  if (game.rageFlash > 0 && fxFlash()) { c.fillStyle = 'rgba(255,40,60,.22)'; c.fillRect(0, 0, LW, VH); }
+  if (game.flash > 0 && fxFlash()) { c.fillStyle = game.flash % 2 ? '#fff' : 'rgba(255,255,255,.5)'; c.fillRect(0, 0, LW, VH); }
   drawHUD();
   drawBanner(cam);
   drawCutscene();

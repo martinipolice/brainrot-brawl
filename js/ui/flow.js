@@ -1,8 +1,8 @@
-import { RM } from '../core/constants.js';
+import { LH, RM, TOUCH } from '../core/constants.js';
 import { hi, CPU_LEVELS, opts } from '../core/settings.js';
 import { game, ui, paused, setUi, setPaused } from '../core/state.js';
 import { pad7, pickOne } from '../core/util.js';
-import { cv } from '../render/canvas.js';
+import { cv, VH, setView } from '../render/canvas.js';
 import { newGame, maxHp } from '../game/match.js';
 import { CHARS } from '../game/roster.js';
 import { announce } from '../audio/announcer.js';
@@ -24,7 +24,10 @@ function wipe() { if (RM) return; const f = $('fade'); f.classList.remove('go');
 export function show(name) {
   setUi(name);
   $('scTitle').hidden = name !== 'title'; $('scSelect').hidden = name !== 'select'; $('scFight').hidden = !(name === 'fight' || name === 'vs' || name === 'ending');
-  $('pad').hidden = !(name === 'fight' && matchMedia('(pointer: coarse)').matches);
+  const arena = TOUCH && $('scFight').hidden === false; // touch: the fight, VS and ending fill the screen, with the pad
+  $('pad').hidden = !arena; document.body.classList.toggle('arena', arena); document.body.dataset.ui = name;
+  if (name === 'vs' || name === 'ending') { $('tip').textContent = name === 'vs' ? 'Get ready! Tap any button to fight' : 'Tap any button to continue'; $('tip').classList.add('hot'); }
+  fitView();
   if (name !== 'fight') { cont = null; $('pPause').hidden = true; $('pResult').hidden = true; setPaused(false); }
   wipe();
   if (name === 'title') { arcade = null; $('hiScore').textContent = pad7(hi); setLogoT0(performance.now()); setTitleView(started ? 'main' : 'press'); }
@@ -96,6 +99,10 @@ export function updateContinue(now) {
   setTimeout(() => { if (ui === 'fight' && !$('pResult').hidden && $('resMenu').hidden) show('title'); }, 2500);
 }
 // The pause or result menu is up: input belongs to the menu, not the fight.
+// A phone held upright gets the taller 4:3 view for the fight, VS and ending; turning it re-fits the screen.
+const UPRIGHT = matchMedia('(orientation: portrait)');
+function fitView() { setView(document.body.classList.contains('arena') && UPRIGHT.matches ? 240 : LH); document.body.classList.toggle('tall', VH > LH); }
+UPRIGHT.addEventListener('change', fitView); addEventListener('resize', fitView); // resize too: some browsers report rotation late
 export const inOverlay = () => ui === 'fight' && (paused || !$('pResult').hidden);
 export function togglePause() { setPaused(!paused); $('pPause').hidden = !paused; $('pmlist').hidden = true; if (paused) $('bResume').focus({ preventScroll: true }); else document.activeElement.blur(); }
 

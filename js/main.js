@@ -1,4 +1,4 @@
-import { STEP } from './core/constants.js';
+import { STEP, TOUCH } from './core/constants.js';
 import { game, ui, paused, tick, setTick } from './core/state.js';
 import { renderFight } from './render/fight.js';
 import { stageCanvas } from './render/stage.js';
@@ -6,7 +6,7 @@ import { updateFx } from './game/effects.js';
 import { step } from './game/match.js';
 import { music } from './audio/music.js';
 import { bindKeys } from './input/hotkeys.js';
-import { bindTouchPad } from './input/touch.js';
+import { bindTouchPad, updateTip } from './input/touch.js';
 import { $ } from './ui/dom.js';
 import { ending, renderEnding } from './ui/ending.js';
 import { cont, show, updateContinue, bindFight } from './ui/flow.js';
@@ -42,6 +42,7 @@ function frame(now) {
   if (ui === 'fight' && game) {
     if (!paused) for (let i = 0; i < ticks; i++) { step(); updateFx(); }
     renderFight();
+    if (TOUCH) updateTip();
   }
   else if (ui === 'vs' && vs) renderVS();
   else if (ui === 'ending' && ending) renderEnding();

@@ -1,4 +1,5 @@
-import { W, H, GROUND, LW, LH } from '../core/constants.js';
+import { W, H, GROUND, LW } from '../core/constants.js';
+import { VH } from '../render/canvas.js';
 import { fxFlash } from '../core/settings.js';
 import { g, E, L } from '../render/shapes.js';
 import { rect } from './draw.js';
@@ -30,7 +31,7 @@ export default {
     if (st.bolt > 0) {
       let x = st.boltX; // a jagged bolt from the clouds to the sea
       for (let y = 190, k = 0; y < 340; y += 22, k++) { const nx = x + ((k * 37 + st.boltX) % 5 - 2) * 9; r(Math.min(x, nx) - 2, y, Math.abs(nx - x) + 5, 24, '#fff1b0'); x = nx; }
-      if (st.bolt > 6 && fxFlash()) { c.save(); c.globalAlpha = .35; c.fillStyle = '#eef4f8'; c.fillRect(0, 0, LW, LH); c.restore(); }
+      if (st.bolt > 6 && fxFlash()) { c.save(); c.globalAlpha = .35; c.fillStyle = '#eef4f8'; c.fillRect(0, 0, LW, VH); c.restore(); }
     }
   },
   tick(st) {

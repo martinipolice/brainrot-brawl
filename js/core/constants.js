@@ -2,3 +2,4 @@
 export const W = 960, H = 540, GROUND = 468, OUT = '#1a1024', PX = 3, LW = W / PX, LH = H / PX;
 export const STEP = 1000 / 60; // one 60 Hz frame in ms
 export const RM = matchMedia('(prefers-reduced-motion: reduce)').matches;
+export const TOUCH = matchMedia('(pointer: coarse)').matches; // a phone or tablet: on-screen pad, touch layout and move list

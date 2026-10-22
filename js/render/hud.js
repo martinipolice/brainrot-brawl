@@ -1,9 +1,9 @@
-import { OUT, PX, LW, LH } from '../core/constants.js';
+import { OUT, PX, LW, LH, TOUCH } from '../core/constants.js';
 import { fxFlash } from '../core/settings.js';
 import { game, tick } from '../core/state.js';
 import { easeOutBack, pad7 } from '../core/util.js';
 import { toLo } from './camera.js';
-import { ctx, layCv } from './canvas.js';
+import { ctx, layCv, VH } from './canvas.js';
 import { figureLayer } from './figures.js';
 import { drawText, drawMono } from './text.js';
 import { maxHp } from '../game/match.js';
@@ -41,15 +41,16 @@ export function drawHUD() {
       if (k < f.wins) { c.fillStyle = '#ff4f7b'; c.fillRect(px - 1, 28, 3, 3); }
     }
     // bottom gauges, no labels (the move list explains them): SUPER in gold above SP in blue
-    const gw = 80, gx = R ? LW - 8 - gw : 8, full = f.meter >= 100, ready = f.sp >= 100;
+    const gw = 80, gx = R ? LW - 8 - gw : 8, full = f.meter >= 100, ready = f.sp >= 100, y = VH - LH; // y: on the view's bottom edge
     const mf = Math.round(gw * f.meter / 100), sf = Math.round(gw * f.sp / 100);
-    c.fillStyle = OUT; c.fillRect(gx - 1, 164, gw + 2, 7); c.fillRect(gx - 1, 172, gw + 2, 5);
-    c.fillStyle = '#2a1f36'; c.fillRect(gx, 165, gw, 5); c.fillRect(gx, 173, gw, 3);
-    c.fillStyle = full ? ['#ffd23f', '#ff4f7b', '#3fb8ff', '#fff'][(tick >> 2) % 4] : '#ffb13b'; c.fillRect(R ? gx + gw - mf : gx, 165, mf, 5);
-    c.fillStyle = OUT; for (let k = 1; k < 4; k++) c.fillRect(gx + Math.round(gw * k / 4), 165, 1, 5);
-    c.fillStyle = ready ? (tick % 16 < 8 ? '#8fe8ff' : '#fff') : '#6b5a7d'; c.fillRect(R ? gx + gw - sf : gx, 173, sf, 3);
-    if (f.glint > 0) { const gp = Math.round((1 - f.glint / 24) * (gw - 4)); c.fillStyle = '#fff'; c.fillRect(R ? gx + gw - 4 - gp : gx + gp, 172, 4, 5); }
-    if (full && tick % 30 < 22) drawText(game.labels[f.i] === '1P' ? 'K+L' : game.labels[f.i] === '2P' ? '.+/' : 'MAX', R ? gx - 4 : gx + gw + 4, 168, 8, '#ffd23f', { align: R ? 'right' : 'left', shadow: '#ff4f7b' });
+    c.fillStyle = OUT; c.fillRect(gx - 1, y + 164, gw + 2, 7); c.fillRect(gx - 1, y + 172, gw + 2, 5);
+    c.fillStyle = '#2a1f36'; c.fillRect(gx, y + 165, gw, 5); c.fillRect(gx, y + 173, gw, 3);
+    c.fillStyle = full ? ['#ffd23f', '#ff4f7b', '#3fb8ff', '#fff'][(tick >> 2) % 4] : '#ffb13b'; c.fillRect(R ? gx + gw - mf : gx, y + 165, mf, 5);
+    c.fillStyle = OUT; for (let k = 1; k < 4; k++) c.fillRect(gx + Math.round(gw * k / 4), y + 165, 1, 5);
+    c.fillStyle = ready ? (tick % 16 < 8 ? '#8fe8ff' : '#fff') : '#6b5a7d'; c.fillRect(R ? gx + gw - sf : gx, y + 173, sf, 3);
+    if (f.glint > 0) { const gp = Math.round((1 - f.glint / 24) * (gw - 4)); c.fillStyle = '#fff'; c.fillRect(R ? gx + gw - 4 - gp : gx + gp, y + 172, 4, 5); }
+    const hint = game.labels[f.i] === '1P' ? (TOUCH ? 'ULT' : 'K+L') : game.labels[f.i] === '2P' ? '.+/' : 'MAX';
+    if (full && tick % 30 < 22) drawText(hint, R ? gx - 4 : gx + gw + 4, y + 168, 8, '#ffd23f', { align: R ? 'right' : 'left', shadow: '#ff4f7b' });
     if (f.comboShow > 0) drawText(`${f.comboN} HITS`, R ? LW - 8 : 8, 70, 8, '#fff', { scale: 2 + f.comboPop * 1.4, align: al, shadow: '#ff4f7b' });
   });
   // KO badge, blinking when someone is in danger
@@ -63,7 +64,7 @@ export function drawHUD() {
 
 // Round and result messages. Every banner is centred on the screen by its visible ink.
 export function drawBanner(cam) {
-  const t = game.phaseT, cx = LW / 2, cy = LH / 2;
+  const t = game.phaseT, cx = LW / 2, cy = VH / 2;
   if (game.phase === 'intro') {
     const label = game.p[0].wins === 1 && game.p[1].wins === 1 ? 'FINAL ROUND' : `ROUND ${game.round}`;
     if (t < 60) drawText(label, cx, cy, 16, '#ffd23f', { scale: 2 * easeOutBack(Math.min(1, t / 14)), shadow: '#ff4f7b', fit: true });
@@ -93,9 +94,9 @@ export function drawCutscene() {
   const cut = game.cut; if (!cut) return;
   const f = game.p[cut.who], t = cut.T, c = ctx, col = PCOL[cut.who], R = cut.who === 1;
   const k = Math.min(1, t / 8) * (1 - Math.max(0, (t - (cut.len - 8)) / 8));
-  c.fillStyle = 'rgba(10,6,20,.6)'; c.fillRect(0, 0, LW, LH);
-  const bar = Math.round(24 * k); c.fillStyle = '#000'; c.fillRect(0, 0, LW, bar); c.fillRect(0, LH - bar, LW, bar);
-  const bh = Math.round(88 * k), by = Math.round(LH / 2 - bh / 2);
+  c.fillStyle = 'rgba(10,6,20,.6)'; c.fillRect(0, 0, LW, VH);
+  const bar = Math.round(24 * k); c.fillStyle = '#000'; c.fillRect(0, 0, LW, bar); c.fillRect(0, VH - bar, LW, bar);
+  const bh = Math.round(88 * k), by = Math.round(VH / 2 - bh / 2);
   if (bh < 4) return;
   c.fillStyle = R ? '#5a1028' : '#1b4a73'; c.fillRect(0, by, LW, bh);
   c.fillStyle = R ? '#9a2f66' : '#2d6fa0';
@@ -115,5 +116,5 @@ export function drawCutscene() {
   const tx = R ? LW * .3 : LW * .7;
   if (t > 6) drawText('ULTIMATE!', tx, by + 16, 8, col, { shadow: '#000' });
   if (t > 10) drawText(cut.name.toUpperCase(), tx, by + bh / 2 + 6, 8, '#fff', { scale: 2 * easeOutBack(Math.min(1, (t - 10) / 16)), shadow: col, maxW: LW * .5 });
-  if (t < 3 && fxFlash()) { c.fillStyle = 'rgba(255,255,255,.7)'; c.fillRect(0, 0, LW, LH); }
+  if (t < 3 && fxFlash()) { c.fillStyle = 'rgba(255,255,255,.7)'; c.fillRect(0, 0, LW, VH); }
 }

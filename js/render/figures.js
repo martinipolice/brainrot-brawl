@@ -19,4 +19,4 @@ export function figureLayer(ch, x, y, scale, face, p, shadow) {
   lay.setTransform(1, 0, 0, 1, 0, 0); pixelize(lay, 0, 0, LW, LH);
   if (shadow) tint(lay, SHADOW_TINT, 0, 0, LW, LH);
 }
-export function drawFigure(ch, x, y, scale, face, p, shadow) { figureLayer(ch, x, y, scale, face, p, shadow); ctx.drawImage(layCv, 0, 0); }
+export function drawFigure(ch, x, y, scale, face, p, shadow) { figureLayer(ch, x, y, scale, face, p, shadow); ctx.drawImage(layCv, 0, 0, LW, LH, 0, 0, LW, LH); }

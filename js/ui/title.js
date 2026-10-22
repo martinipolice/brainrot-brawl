@@ -1,4 +1,4 @@
-import { OUT, RM, STEP } from '../core/constants.js';
+import { OUT, RM, STEP, TOUCH } from '../core/constants.js';
 import { VERSION, CRTKEY, load, save, CPU_LEVELS, opts, saveOpts } from '../core/settings.js';
 import { tick } from '../core/state.js';
 import { easeOutBack } from '../core/util.js';
@@ -48,8 +48,17 @@ export function cycleOpt(name, dir, wrap = false) {
   saveOpts(); syncOpts(); sfx(name === 'sfx' ? 'hit' : 'hover');
 }
 
-// move list, shared by the title screen and the pause menu (directions assume you face right)
-const MOVES_HTML = `<dt class="hd">All fighters (facing right)</dt>
+// move list, shared by the title screen and the pause menu (directions assume you face right). On touch screens it
+// names the on-screen buttons (L, H, S, ULT and the d-pad) instead of keys.
+const MOVES_HTML = `<dt class="hd">All fighters (facing right)</dt>` + (TOUCH ? `
+  <dt>L H S</dt><dd>Light, heavy, special</dd>
+  <dt>▶ ▶</dt><dd>Double-tap to dash in (◀ ◀ backsteps)</dd>
+  <dt>Hold ◀ or ▼</dt><dd>Guard</dd>
+  <dt>▶ + H</dt><dd>Rush attack: a lunging heavy</dd>
+  <dt>◀ + H</dt><dd>Launcher: anti-air that pops them up</dd>
+  <dt>L, L, H</dt><dd>Chain combo when the hits connect</dd>
+  <dt>L or H, S</dt><dd>Cancel a connected hit into your special</dd>
+  <dt>ULT</dt><dd>ULTIMATE when SUPER (the gold bar) is full (H + S together works too)</dd>` : `
   <dt>J K L</dt><dd>Light, heavy, special (P2: , . /)</dd>
   <dt>→ →</dt><dd>Dash in (← ← backsteps)</dd>
   <dt>Hold ← or ↓</dt><dd>Guard</dd>
@@ -57,7 +66,7 @@ const MOVES_HTML = `<dt class="hd">All fighters (facing right)</dt>
   <dt>← + H</dt><dd>Launcher: anti-air that pops them up</dd>
   <dt>L, L, H</dt><dd>Chain combo when the hits connect</dd>
   <dt>L or H, S</dt><dd>Cancel a connected hit into your special</dd>
-  <dt>K + L</dt><dd>ULTIMATE when SUPER (the gold bar) is full: Heavy and Special together (P2: . + /, or ↓ → + Special)</dd>
+  <dt>K + L</dt><dd>ULTIMATE when SUPER (the gold bar) is full: Heavy and Special together (P2: . + /, or ↓ → + Special)</dd>`) + `
   <dt>SP gauge</dt><dd>The blue bar under SUPER: empty at the start of each round; land lights and heavies to charge your special</dd>
   <dt>Rage</dt><dd>Below 30% health: 10% more damage and a third of a SUPER bar, once a round</dd>
   <dt class="hd">Specials and ultimates</dt>` +

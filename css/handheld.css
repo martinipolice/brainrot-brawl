@@ -1,0 +1,103 @@
+/* Touch screens: the on-screen pad, and the handheld layout. The pad only shows in fights on touch screens, and
+   body.arena is only set on touch screens while the fight, VS or ending canvas is up, so desktop never changes.
+   Landscape: the fight fills the screen and the controls float over its corners, faint until touched.
+   Portrait: the fight runs full width on top, with a big pad below it, like a Game Boy. */
+
+/* --- the pad --- */
+.pad{display:flex;justify-content:space-between;align-items:flex-end;gap:12px;user-select:none;-webkit-user-select:none;-webkit-touch-callout:none;touch-action:none}
+/* d-pad: one cross-shaped touch area; touch.js reads the angle from its centre (8 directions) */
+.dpad{--s:clamp(132px,36vmin,176px);position:relative;flex:none;width:var(--s);height:var(--s);touch-action:none;
+  filter:drop-shadow(3px 0 0 #000) drop-shadow(-3px 0 0 #000) drop-shadow(0 3px 0 #000) drop-shadow(0 -3px 0 #000) drop-shadow(3px 3px 0 #000)}
+.dpad::before{content:'';position:absolute;inset:0;background:var(--panel);
+  clip-path:polygon(33% 0,67% 0,67% 33%,100% 33%,100% 67%,67% 67%,67% 100%,33% 100%,33% 67%,0 67%,0 33%,33% 33%)}
+.dpad span{position:absolute;font-family:var(--display);font-size:14px;line-height:1;color:var(--muted);transform:translate(-50%,-50%);pointer-events:none}
+.dpad .u{left:50%;top:17%}.dpad .d{left:50%;top:83%}.dpad .l{left:17%;top:50%}.dpad .r{left:83%;top:50%}
+.dpad[data-dir*=u] .u,.dpad[data-dir*=d] .d,.dpad[data-dir*=l] .l,.dpad[data-dir*=r] .r{color:var(--accent);text-shadow:0 0 6px var(--accent)}
+/* attack buttons: L H on top, S ULT below, so a thumb rolls from L onto H */
+.atk{--b:clamp(56px,16vmin,72px);display:grid;grid-template-columns:repeat(2,var(--b));gap:12px;flex:none}
+.atk button{width:var(--b);height:var(--b);padding:0;border-radius:50%;border:3px solid #000;box-shadow:3px 3px 0 #000;font-family:var(--display);font-size:13px;touch-action:none;background:var(--hot);color:#fff}
+.atk button:nth-child(1){background:var(--accent);color:#000}
+.atk button:nth-child(4){background:var(--p1);color:#000;font-size:11px}
+.atk button.down{transform:translate(3px,3px);box-shadow:none;filter:brightness(1.3)}
+/* pause: two bars drawn in CSS (pause glyphs vary by font) */
+.pausebtn{width:44px;height:44px;padding:0;border:3px solid #000;box-shadow:3px 3px 0 #000;
+  background:linear-gradient(90deg,transparent 32%,var(--fg) 32% 44%,transparent 44% 56%,var(--fg) 56% 68%,transparent 68%) center/100% 44% no-repeat,var(--panel)}
+.pausebtn:active{transform:translate(3px,3px);box-shadow:none}
+.rotate{display:none;margin:0;font-family:var(--display);font-size:8px;line-height:1.6;color:var(--muted);text-transform:uppercase;text-align:center}
+/* ULT glows while SUPER is full */
+.atk button.ready{animation:ultready .5s steps(2) infinite}
+@keyframes ultready{50%{box-shadow:0 0 0 4px var(--accent),3px 3px 0 #000;filter:brightness(1.25)}}
+/* portrait-only parts of the handheld shell (hidden elsewhere) */
+.plate,.tip,.pills{display:none}
+
+/* --- touch screens everywhere: no double-tap zoom; touch help instead of keyboard help --- */
+.controls .touchhelp{display:none}
+@media (pointer:coarse){
+  html{touch-action:manipulation}
+  .controls table,.controls .hints,.bezel-foot .keys{display:none}
+  .controls .touchhelp{display:block}
+}
+
+/* --- the arena (touch, fight/VS/ending): the canvas takes the screen, nothing scrolls, zooms or selects --- */
+body.arena{height:100dvh;padding:0;overflow:hidden;overscroll-behavior:none;touch-action:none;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
+body.arena .marquee,body.arena .bezel-foot,body.arena .controls,body.arena .note{display:none}
+body.arena .wrap{max-width:none;height:100%;gap:0}
+body.arena .cabinet,body.arena .bezel{padding:0;gap:0;border:0;border-radius:0;box-shadow:none;background:#000}
+body.arena .crt{border-radius:0}
+/* pause and results cover everything, the pad included */
+body.arena .panel{position:fixed;inset:0;z-index:20;overflow:auto;background:rgba(10,6,20,.88);place-content:stretch;
+  padding:max(16px,env(safe-area-inset-top)) max(16px,env(safe-area-inset-right)) max(16px,env(safe-area-inset-bottom)) max(16px,env(safe-area-inset-left))}
+/* centred while it fits; a window taller than the screen (move list open) starts at the top and scrolls */
+body.arena .panel .win{margin:auto}
+
+@media (orientation:landscape){
+  body.arena{background:#000}
+  body.arena .wrap{display:grid;place-items:center}
+  body.arena .cabinet{width:min(100vw,calc(100dvh * 16 / 9))}
+  body.arena .pad{position:fixed;left:0;right:0;bottom:0;z-index:10;pointer-events:none;
+    padding:0 max(16px,env(safe-area-inset-right)) max(12px,env(safe-area-inset-bottom)) max(16px,env(safe-area-inset-left))}
+  body.arena .pad>*{pointer-events:auto}
+  /* each thumb's controls fade up on their own: pressing an attack never flashes the d-pad, or the other way round */
+  body.arena .dpad,body.arena .atk{opacity:.5;transition:opacity .12s}
+  body.arena .dpad.on,body.arena .atk:has(.down,.ready){opacity:.9}
+  body.arena .dpad{--s:clamp(120px,40dvh,170px)}
+  body.arena .atk{--b:clamp(52px,15dvh,68px)}
+  body.arena .pausebtn{position:fixed;top:max(6px,env(safe-area-inset-top));right:max(8px,env(safe-area-inset-right))}
+  body[data-ui=vs] .pad,body[data-ui=ending] .pad{display:none} /* the VS and ending pictures fill the screen; a tap moves on */
+}
+/* Portrait: a handheld. The taller 4:3 fight view on top (flow.js switches the canvas to 320x240 and sets body.tall),
+   then a name plate, a live tip strip, the d-pad and buttons in the thumb zone, and Start/Select-style pills. */
+@media (orientation:portrait){
+  body.arena{background:linear-gradient(var(--cab2),var(--cab) 60%)}
+  body.arena .wrap{display:flex;flex-direction:column}
+  body.arena .cabinet{flex:none;padding-top:env(safe-area-inset-top);box-shadow:0 4px 0 #000,0 7px 0 var(--accent)}
+  body.tall #cv{aspect-ratio:4/3}
+  body.arena .pad{flex:1;min-height:0;display:grid;grid-template-columns:1fr auto;grid-template-rows:auto auto 1fr auto auto;
+    grid-template-areas:'plate plate' 'tip tip' 'dpad atk' 'pills pills' 'rotate rotate';align-items:center;gap:10px 12px;
+    padding:18px max(18px,env(safe-area-inset-right)) max(14px,env(safe-area-inset-bottom)) max(18px,env(safe-area-inset-left))}
+  body.arena .plate{display:block;grid-area:plate;margin:0;text-align:center;font-family:var(--display);font-size:9px;line-height:1.6;
+    color:var(--muted);text-transform:uppercase;letter-spacing:1px}
+  body.arena .plate b{font-weight:400;color:var(--accent)}
+  body.arena .tip{display:block;grid-area:tip;margin:0;padding:9px 10px;min-height:1.6em;text-align:center;font-family:var(--display);font-size:9px;
+    line-height:1.6;color:var(--fg);text-transform:uppercase;background:#0a0710;border:3px solid #000;box-shadow:inset 0 0 0 2px var(--line)}
+  body.arena .tip.hot{color:var(--accent);animation:blink 1s steps(1) infinite}
+  body.arena .dpad{grid-area:dpad;--s:min(44vw,200px)}
+  body.arena .atk{grid-area:atk;--b:min(19vw,82px)}
+  body.arena .pausebtn{display:none}
+  body.arena .pills{display:flex;grid-area:pills;justify-content:center;gap:18px}
+  body.arena .pill{min-height:44px;min-width:96px;padding:0 16px;border:3px solid #000;border-radius:22px;box-shadow:3px 3px 0 #000;
+    background:var(--panel);color:var(--muted);font-family:var(--display);font-size:9px;text-transform:uppercase}
+  body.arena .pill:active{transform:translate(3px,3px);box-shadow:none}
+  body.arena .rotate{display:block;grid-area:rotate}
+  /* VS and ending keep the whole handheld (so nothing jumps when the fight starts); Pause and Moves wait for the fight */
+  body[data-ui=vs] .pills,body[data-ui=ending] .pills{visibility:hidden}
+}
+
+/* --- short landscape screens outside fights (title, select): only the screen stays in the cabinet, sized to the height,
+   so it fits without scrolling (the help card and notes follow below) --- */
+@media (pointer:coarse) and (orientation:landscape) and (max-height:540px){
+  body:not(.arena){padding-block:8px}
+  body:not(.arena) .marquee,body:not(.arena) .bezel-foot{display:none}
+  body:not(.arena) .cabinet,body:not(.arena) .bezel{padding:6px}
+  body:not(.arena) .wrap{max-width:calc((100dvh - 48px) * 16 / 9)}
+}
