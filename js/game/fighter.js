@@ -52,7 +52,7 @@ function land(f, impact) {
 }
 
 export function updateFighter(f, foe, inp) {
-  f.T++; if (f.flash > 0) f.flash--; if (f.comboShow > 0) f.comboShow--;
+  f.T++; if (f.flash > 0) f.flash--; if (f.comboShow > 0) f.comboShow--; if (f.counterShow > 0) f.counterShow--;
   for (const k in f.buf) if (f.buf[k] > 0) f.buf[k]--;
   for (const k of ['up', 'light', 'heavy', 'special', 'ult']) if (inp[k]) f.buf[k] = 10; // 10-frame input buffer
   // directions relative to facing, and the press history that the motion and dash commands read

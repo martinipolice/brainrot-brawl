@@ -52,6 +52,7 @@ export function drawHUD() {
     const hint = game.labels[f.i] === '1P' ? (TOUCH ? 'ULT' : 'K+L') : game.labels[f.i] === '2P' ? '.+/' : 'MAX';
     if (full && tick % 30 < 22) drawText(hint, R ? gx - 4 : gx + gw + 4, y + 168, 8, '#ffd23f', { align: R ? 'right' : 'left', shadow: '#ff4f7b' });
     if (f.comboShow > 0) drawText(`${f.comboN} HITS`, R ? LW - 8 : 8, 70, 8, '#fff', { scale: 2 + f.comboPop * 1.4, align: al, shadow: '#ff4f7b' });
+    if (f.counterShow > 0) drawText('COUNTER', R ? LW - 10 : 10, 52, 8, '#ff9a3b', { align: al, shadow: '#5a1028' }); // your hit caught them starting an attack
   });
   // KO badge, blinking when someone is in danger
   const kx = LW / 2 - 13, blink = lowAny && tick % 30 < 15;

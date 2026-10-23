@@ -4,7 +4,7 @@ An open-source 1v1 pixel-art fighting game for the browser, starring the Italian
 
 [![Play now](https://img.shields.io/badge/play-in_your_browser-ff3b5c)](https://martinipolice.github.io/brainrot-brawl/)
 [![Pages](https://img.shields.io/github/deployments/martinipolice/brainrot-brawl/github-pages?label=pages)](https://github.com/martinipolice/brainrot-brawl/deployments)
-![Version](https://img.shields.io/badge/version-1.9.0-ffde3b)
+![Version](https://img.shields.io/badge/version-1.9.1-ffde3b)
 [![License: MIT](https://img.shields.io/badge/license-MIT-4d8b3a)](LICENSE)
 
 ![Tralalero Tralala, Tung Tung Tung Sahur, Bombardiro Crocodilo and Ballerina Cappuccina on Sunset Beach](img/og-image.png)
@@ -54,6 +54,7 @@ An open-source 1v1 pixel-art fighting game for the browser, starring the Italian
 
 Other keys:
 - Esc pauses, M mutes and C toggles the CRT filter.
+- Light, Heavy or Special skips the ROUND call, ultimate cut-ins and the end-of-round tally.
 - In menus, the arrows or WASD move and Enter or J selects.
 - On phones and tablets, an on-screen pad controls Player 1: slide your thumb on the d-pad (diagonals work), tap L, H, S or ULT, and ❚❚ pauses. Play in landscape for the biggest view.
 

@@ -1,4 +1,5 @@
-import { W, GROUND } from '../core/constants.js';
+import { W, GROUND, TOUCH } from '../core/constants.js';
+import { fxShake } from '../core/settings.js';
 import { game } from '../core/state.js';
 import { pickOne } from '../core/util.js';
 import { MAXSEP } from '../render/camera.js';
@@ -14,19 +15,23 @@ const hurt = f => [f.x - f.ch.w / 2, f.y - f.ch.h, f.ch.w, f.ch.h];
 
 // SUPER meter gained per point of damage, for the attacker and the defender, on clean and on blocked hits.
 const METER = { deal: .25, take: .17, dealBlocked: .12, takeBlocked: .08 };
+// Phones (Android) buzz when Player 1 lands or takes a hit; the Shake & flash option set to Off turns it off too.
+const buzz = (ms, f, attacker) => { if (TOUCH && fxShake() > 0 && navigator.vibrate && (f === game.p[0] || attacker === game.p[0])) navigator.vibrate(ms); };
 function applyHit(t, h, attacker) {
   if (t.state === 'ko') return;
   if (attacker && attacker.rage) h = { ...h, dmg: h.dmg * 1.1 };
   // guard by holding block, or by holding back while standing or walking (like Street Fighter)
   const guarding = t.state === 'block' || t.state === 'blockstun' || (t.backHeld && t.y >= GROUND && !t.atk && !t.stun && (t.state === 'walk' || t.state === 'idle'));
   const blocking = guarding && t.face === -h.dir, big = h.stop > 6;
-  game.stop = h.stop;
+  // a blocked hit freezes for less time than a clean one, so clean hits land heavier; both fighters freeze alike, so
+  // nobody gains or loses any advantage from it
+  game.stop = blocking ? Math.max(2, Math.round(h.stop * .6)) : h.stop;
   if (blocking) {
     t.hp -= h.dmg * (h.chip ?? .15); t.stun = Math.round(h.stun * .7); t.state = 'blockstun'; t.vx = h.dir * Math.min(h.kb, 12) * .6;
     t.sq = .08; t.barShake = 1.5;
     if (!h.ult) gainMeter(attacker, h.dmg * METER.dealBlocked); gainMeter(t, h.dmg * METER.takeBlocked); gainSp(attacker, h.src, .5);
     if (attacker) game.score[attacker.i] += 20;
-    spark(h.x, h.y, 'block'); sfx('block');
+    spark(h.x, h.y, 'block'); sfx('block'); buzz(6, t, attacker);
     burst(h.x, h.y, 6, { ang: h.dir > 0 ? Math.PI : 0, spread: 2, sp: [2, 6], g: .2, life: [8, 14], cols: ['#8fe8ff', '#9fd6ff', '#fff'], sz: 2 });
   } else if (t.atk && t.atk.armor && t.atkT < t.atk.startup + t.atk.active) {
     t.hp -= h.dmg; t.flash = 6; t.jit = 1; t.barShake = 3; t.hitFlash = 10; spark(h.x, h.y, 'hit'); sfx('hit'); // armored: takes damage, keeps swinging
@@ -34,6 +39,7 @@ function applyHit(t, h, attacker) {
     if (attacker) game.score[attacker.i] += Math.round(h.dmg) * 100;
     burst(h.x, h.y, 8, { ang: h.dir > 0 ? 0 : Math.PI, spread: 1.6, sp: [3, 9], life: [10, 18], cols: ['#fff', '#ffe45c', '#e6c38c'], floor: true });
   } else {
+    const counter = t.atk && t.atkT < t.atk.startup; // caught starting an attack: the HUD says COUNTER (no extra damage)
     t.hp -= h.dmg; t.atk = null; t.dashT = 0; t.stun = h.stun; t.state = 'hit'; t.vx = h.dir * h.kb; if (t.y < GROUND) t.vy = -4;
     if (h.launch) t.vy = -11; // launcher pops them up for a juggle
     if (h.finisher) t.vy = -9;
@@ -45,6 +51,8 @@ function applyHit(t, h, attacker) {
     burst(h.x, h.y, big ? 18 : 10, { ang: h.dir > 0 ? 0 : Math.PI, spread: 1.7, sp: big ? [4, 14] : [3, 9], g: .35, life: [10, 22],
       cols: ['#fff', '#ffe45c', '#ffd23f', '#ffb13b'], sz: big ? 3 : 2, floor: true });
     if (big) react('big', { x: h.x, y: h.y });
+    if (counter && attacker) attacker.counterShow = 45;
+    buzz(big ? 22 : 12, t, attacker);
     if (big || h.word) {
       if (attacker) pop(pickOne(attacker.ch.words), h.x, h.y - 40);
       game.zp = Math.max(game.zp, h.finisher ? .16 : .07); game.zx = h.x; game.zy = h.y;
@@ -55,7 +63,7 @@ function applyHit(t, h, attacker) {
     Object.assign(t, { hp: 0, state: 'ko', atk: null, stun: 0, vy: -9, vx: h.dir * 6, rot: 0, rotV: -(.05 + Math.min(h.kb, 10) * .003) }); // harder hits spin the body faster
     Object.assign(game, { stop: 22, slowT: 60, koZoom: 80, zx: t.x, zy: t.y - t.ch.h / 2, flash: 6 }); addTrauma('ko');
     burst(t.x, t.y - t.ch.h / 2, 34, { sp: [3, 13], g: .25, life: [20, 40], cols: ['#ffd23f', '#ff4f7b', '#3fb8ff', '#fff', '#ff8fc4'], sz: 3, floor: true });
-    sfx('ko'); duck(.15, 1.2); muffle(1); react('ko', { x: t.x });
+    sfx('ko'); duck(.15, 1.2); muffle(1); react('ko', { x: t.x }); buzz([60, 40, 90], t, attacker);
   }
 }
 
